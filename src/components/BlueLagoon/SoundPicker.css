@@ -1,0 +1,79 @@
+/* ── ピッカー共通スタイル（SoundPicker / ThemePicker） ── */
+
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 310;
+}
+
+.picker-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 320;
+  background: rgba(10, 20, 50, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(100, 200, 255, 0.15);
+  border-radius: 20px 20px 0 0;
+  padding: 20px 24px 40px;
+  animation: picker-slide-up 0.25s ease;
+}
+
+@keyframes picker-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.picker-title {
+  font-size: 13px;
+  color: rgba(200, 230, 255, 0.7);
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.picker-divider {
+  height: 1px;
+  background: rgba(100, 200, 255, 0.12);
+  margin-bottom: 14px;
+}
+
+.picker-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.picker-option {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 4px;
+  font-size: 15px;
+  color: rgba(220, 240, 255, 0.8);
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 8px;
+  transition: background 0.1s;
+}
+
+.picker-option:active {
+  background: rgba(100, 200, 255, 0.1);
+}
+
+.picker-option--active {
+  color: rgba(150, 220, 255, 1);
+}
+
+.picker-radio {
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+  color: rgba(100, 200, 255, 0.8);
+}

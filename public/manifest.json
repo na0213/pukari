@@ -1,0 +1,13 @@
+{
+  "name": "Pukari — float your thoughts, gently.",
+  "short_name": "Pukari",
+  "description": "途中でも消えない、思いつきの避難所。Float your thoughts, gently.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E3F2FD",
+  "theme_color": "#64B5F6",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

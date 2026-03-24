@@ -1,0 +1,243 @@
+/* オーバーレイ背景 */
+.bubble-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(100, 130, 180, 0.25);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  padding-bottom: 16px;
+}
+
+/* カード本体 */
+.bubble-detail-card {
+  width: min(420px, 100%);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px 24px 20px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 -4px 32px rgba(100, 140, 200, 0.2);
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 閉じるバー */
+.bubble-detail-handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(100, 120, 160, 0.25);
+  border-radius: 2px;
+  margin: 0 auto -6px;
+}
+
+/* メインテキスト */
+.bubble-detail-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+/* 状態バッジ（キープ中のみ） */
+.bubble-detail-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: rgba(100, 140, 200, 0.1);
+  border-radius: 12px;
+  padding: 4px 10px;
+  width: fit-content;
+}
+
+/* メモ欄 */
+.bubble-detail-memo {
+  width: 100%;
+  min-height: 60px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(180, 200, 230, 0.4);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.bubble-detail-memo::placeholder { color: var(--text-secondary); }
+.bubble-detail-memo:focus { border-color: rgba(100, 181, 246, 0.6); }
+
+/* 作成日 */
+.bubble-detail-date {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* アクションエリア */
+.bubble-detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* メインボタン */
+.bubble-detail-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, transform 0.15s;
+  font-family: inherit;
+}
+
+.bubble-detail-btn:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+/* キープする */
+.bubble-detail-btn--keep {
+  background: rgba(100, 181, 246, 0.2);
+  color: #1565c0;
+  border: 1px solid rgba(100, 181, 246, 0.35);
+}
+
+/* できた！ */
+.bubble-detail-btn--done {
+  background: rgba(102, 187, 106, 0.85);
+  color: #fff;
+  border: 1px solid rgba(76, 175, 80, 0.6);
+  flex: 1;
+}
+
+/* 「今日はここまで」と「できた！」の横並び行 */
+.bubble-detail-main-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+/* 今日はここまで */
+.bubble-detail-btn--today {
+  flex: 1;
+  padding: 14px 10px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
+  border: 1px solid rgba(180, 200, 220, 0.5);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.bubble-detail-btn--today:active {
+  transform: scale(0.97);
+  opacity: 0.8;
+}
+
+/* 記録済み状態 */
+.bubble-detail-btn--today-done {
+  background: rgba(200, 220, 200, 0.3);
+  color: rgba(80, 140, 80, 0.7);
+  border: 1px solid rgba(150, 200, 150, 0.3);
+  cursor: default;
+  opacity: 0.85;
+}
+
+/* フッター（閉じるボタン） */
+.bubble-detail-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.bubble-detail-btn--close {
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-family: inherit;
+}
+
+/* 削除エリア */
+.bubble-detail-delete-area {
+  text-align: center;
+  padding-top: 4px;
+}
+
+.bubble-detail-delete-link {
+  font-size: 12px;
+  color: #bbb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 8px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.bubble-detail-delete-confirm {
+  background: rgba(255, 240, 240, 0.8);
+  border: 1px solid rgba(239, 83, 80, 0.2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bubble-detail-delete-confirm-text {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.bubble-detail-delete-confirm-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.bubble-detail-delete-cancel {
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-family: inherit;
+}
+
+.bubble-detail-delete-ok {
+  font-size: 13px;
+  color: #fff;
+  background: #ef5350;
+  border: none;
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-weight: 600;
+}

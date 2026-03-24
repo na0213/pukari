@@ -1,0 +1,75 @@
+.bubble-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 0 6px 0 18px;
+  margin-right: 12px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.bubble-input-wrap:focus-within {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
+.bubble-input-field {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: inherit;
+  line-height: 1;
+}
+
+.bubble-input-field::placeholder {
+  color: var(--text-secondary);
+}
+
+.bubble-input-submit {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.15s;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.bubble-input-submit:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.bubble-input-submit:active {
+  transform: scale(0.92);
+}
+
+.bubble-input-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 上限メッセージ */
+.bubble-limit-msg {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 0 12px;
+  line-height: 1.4;
+}

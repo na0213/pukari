@@ -1,0 +1,121 @@
+/* ── 背景オーバーレイ ── */
+.entry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(5, 10, 30, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: entry-overlay-in 0.2s ease;
+}
+
+@keyframes entry-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── モーダル本体 ── */
+.entry-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 410;
+  width: min(340px, 90vw);
+  background: rgba(10, 20, 60, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(100, 180, 255, 0.2);
+  border-radius: 20px;
+  padding: 32px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: entry-modal-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes entry-modal-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* × 閉じるボタン */
+.entry-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(100, 180, 255, 0.1);
+  border: none;
+  color: rgba(200, 230, 255, 0.6);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.entry-close:active {
+  background: rgba(100, 180, 255, 0.2);
+}
+
+/* タイトル */
+.entry-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: rgba(220, 240, 255, 0.95);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+/* サブテキスト */
+.entry-sub {
+  font-size: 12px;
+  color: rgba(150, 200, 255, 0.55);
+  letter-spacing: 0.05em;
+  margin: -4px 0 4px;
+}
+
+/* テキスト入力 */
+.entry-input {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(100, 180, 255, 0.2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: rgba(220, 240, 255, 0.9);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.entry-input::placeholder {
+  color: rgba(150, 200, 255, 0.35);
+}
+
+.entry-input:focus {
+  border-color: rgba(100, 200, 255, 0.5);
+}
+
+/* Go ボタン */
+.entry-go {
+  margin-top: 4px;
+  padding: 13px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(50, 150, 255, 0.7), rgba(0, 200, 200, 0.5));
+  border: 1px solid rgba(100, 220, 255, 0.35);
+  color: rgba(220, 245, 255, 0.95);
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.entry-go:active {
+  opacity: 0.75;
+}

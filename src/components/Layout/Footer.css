@@ -1,0 +1,49 @@
+/* ── フッター（固定ナビゲーションバー） ── */
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(56px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  z-index: 10;
+  padding-top: 6px;
+}
+
+/* ── 各ボタン ── */
+.app-footer-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0 0;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.app-footer-btn:active:not(.app-footer-btn--disabled) {
+  opacity: 0.65;
+}
+
+.app-footer-btn--disabled {
+  cursor: not-allowed;
+}
+
+/* ── ラベル ── */
+.app-footer-label {
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  /* color は JS 側でインラインで制御 */
+}

@@ -1,0 +1,52 @@
+/* ── ラグーン意気込みシャボン玉 ── */
+.lagoon-bubble {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.25),
+    rgba(150, 220, 255, 0.08)
+  );
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: float 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* 自分の泡: 少し明るく */
+.lagoon-bubble--mine {
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.45),
+    rgba(150, 230, 255, 0.2)
+  );
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 0 12px 3px rgba(150, 230, 255, 0.2),
+    inset 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+/* 他の人の泡: 控えめ */
+.lagoon-bubble--other {
+  opacity: 0.45;
+}
+
+/* 意気込みテキスト */
+.lagoon-bubble-text {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+  max-width: 100%;
+  padding: 0 4px;
+}

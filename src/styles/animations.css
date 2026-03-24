@@ -1,0 +1,99 @@
+/* シャボン玉アニメーション定義 */
+
+/* 上下に漂う */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  33% {
+    transform: translateY(-14px) translateX(3px);
+  }
+  66% {
+    transform: translateY(-6px) translateX(-3px);
+  }
+}
+
+/* 左右に揺れる（floatと組み合わせ） */
+@keyframes sway {
+  0%, 100% {
+    margin-left: 0px;
+  }
+  50% {
+    margin-left: 5px;
+  }
+}
+
+/* 出現（framer-motionで使うが、CSSのみ環境向けにも定義） */
+@keyframes appear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* done: 空に溶けていく */
+@keyframes dissolve {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* drifted: 遠くへ流れる */
+@keyframes drift {
+  0% {
+    transform: translateX(0) translateY(0) scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(80px) translateY(-100px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* 星のキラキラ明滅 */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 1; }
+}
+
+/* drifted用: 振幅の小さいふわふわ */
+@keyframes float-small {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-3px); }
+}
+
+/* touched: ほんのり光るパルス */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 12px 4px rgba(173, 216, 230, 0.4),
+      inset 0 0 8px rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 20px 8px rgba(173, 216, 230, 0.7),
+      inset 0 0 12px rgba(255, 255, 255, 0.35);
+  }
+}
+
+/* アニメーション軽減設定ではすべて無効化 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

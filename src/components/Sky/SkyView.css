@@ -1,0 +1,80 @@
+/* ── メインコンテナ（空全体・固定） ── */
+.sky-view {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sky-dawn);
+  transition: background var(--transition-speed) ease;
+}
+
+/* 空のグラデーション（フェーズ別） */
+.sky-view--dawn      { background: var(--sky-dawn); }
+.sky-view--morning   { background: var(--sky-morning); }
+.sky-view--afternoon { background: var(--sky-afternoon); }
+.sky-view--sunset    { background: var(--sky-sunset); }
+.sky-view--night     { background: var(--sky-night); }
+
+/* ── 星レイヤー（night のみ、スクロール外に固定） ── */
+.sky-stars {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  bottom: 128px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  animation: twinkle var(--twinkle-duration, 2s) ease-in-out infinite var(--twinkle-delay, 0s);
+}
+
+/* ── 横スクロールコンテナ ── */
+.sky-scroll-container {
+  position: absolute;
+  top: 44px; /* ヘッダー分 */
+  left: 0;
+  right: 0;
+  bottom: 128px; /* フッター56px + 入力バー64px + 余白8px */
+  overflow-x: auto;
+  overflow-y: hidden;
+  z-index: 1;
+  scrollbar-width: none;
+}
+
+.sky-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── 空のキャンバス（横方向に拡張） ── */
+.sky-canvas {
+  position: relative;
+  height: 100%;
+  min-width: 100%;
+  /* 幅は SkyView.tsx の inline style で設定 */
+}
+
+/* ── スクロールヒント（右端フェードアウト） ── */
+.sky-scroll-hint {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  bottom: 128px;
+  width: 64px;
+  background: linear-gradient(to right, transparent, rgba(180, 210, 240, 0.38));
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── 入力バー（フッターの上に固定） ── */
+.sky-input-bar {
+  position: fixed;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 8px);
+  left: 0;
+  right: 0;
+  padding: 0 16px;
+  z-index: 10;
+}

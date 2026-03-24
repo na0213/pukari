@@ -1,0 +1,32 @@
+:root {
+  /* 空の色 */
+  --sky-dawn: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 100%);
+  --sky-morning: linear-gradient(180deg, #90CAF9 0%, #64B5F6 100%);
+  --sky-afternoon: linear-gradient(180deg, #64B5F6 0%, #FFB74D 30%, #90CAF9 100%);
+  --sky-sunset: linear-gradient(180deg, #FF8A65 0%, #FFB74D 40%, #CE93D8 100%);
+  --sky-night: linear-gradient(180deg, #1A237E 0%, #283593 50%, #3949AB 100%);
+
+  /* シャボン玉の色 */
+  --bubble-base: rgba(255, 255, 255, 0.15);
+  --bubble-border: rgba(255, 255, 255, 0.3);
+  --bubble-glow: rgba(173, 216, 230, 0.4);
+  --bubble-nearby: rgba(255, 255, 255, 0.25);
+  --bubble-touched: rgba(173, 216, 230, 0.5);
+
+  /* テキスト */
+  --text-primary: #1B2A4A;
+  --text-secondary: #6B7280;
+  --text-on-dark: #E3F2FD;
+
+  /* 感覚過敏配慮 */
+  --animation-duration: 3s;
+  --transition-speed: 0.3s;
+}
+
+/* アニメーション軽減設定 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --animation-duration: 0s;
+    --transition-speed: 0s;
+  }
+}
