@@ -41,6 +41,75 @@ create trigger bubbles_updated_at
   for each row execute function update_updated_at();
 
 
+-- ── profiles テーブル ──
+-- 表示名など、アプリ内で使うユーザー設定
+
+create table profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  display_name text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table profiles enable row level security;
+
+create policy "Users can manage own profiles"
+  on profiles for all
+  using (auth.uid() = id)
+  with check (auth.uid() = id);
+
+create trigger profiles_updated_at
+  before update on profiles
+  for each row execute function update_updated_at();
+
+create or replace function public.handle_new_user_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, display_name)
+  values (
+    new.id,
+    coalesce(
+      new.raw_user_meta_data ->> 'display_name',
+      new.raw_user_meta_data ->> 'full_name',
+      new.raw_user_meta_data ->> 'name'
+    )
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created_profile on auth.users;
+create trigger on_auth_user_created_profile
+  after insert on auth.users
+  for each row execute function public.handle_new_user_profile();
+
+create or replace function public.handle_deleted_user_cleanup()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  delete from public.profiles where id = old.id;
+  delete from public.bubbles where user_id = old.id;
+  delete from public.bubble_logs where user_id = old.id;
+  delete from public.daily_skies where user_id = old.id;
+  delete from public.lagoon_bubbles where user_id = old.id;
+  return old;
+end;
+$$;
+
+drop trigger if exists on_auth_user_deleted_cleanup on auth.users;
+create trigger on_auth_user_deleted_cleanup
+  after delete on auth.users
+  for each row execute function public.handle_deleted_user_cleanup();
+
+
 -- ── bubble_logs テーブル ──
 -- 「できた」の日ごとの記録
 

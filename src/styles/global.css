@@ -30,3 +30,29 @@
     --transition-speed: 0s;
   }
 }
+
+/* ── グラスモーフィズム ユーティリティ ── */
+
+/* 汎用パネル（モーダル・カード背景など） */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* 明るい背景向けテキスト */
+.bubble-text-glass {
+  color: rgba(30, 50, 90, 0.8);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* 暗い背景向けテキスト */
+.bubble-text-dark {
+  color: rgba(220, 235, 255, 0.92);
+  text-shadow: 0 0 8px rgba(100, 180, 255, 0.4);
+}

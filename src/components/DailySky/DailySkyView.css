@@ -16,6 +16,84 @@
 .sky-daily--sunset    { background: var(--sky-sunset); }
 .sky-daily--night     { background: var(--sky-night); }
 
+/* ── 朝の空では文字を濃くする ── */
+.daily-sky-wrapper.sky-daily--dawn .daily-sky-top-bar,
+.daily-sky-wrapper.sky-daily--morning .daily-sky-top-bar {
+  background: rgba(255, 255, 255, 0.28);
+  border-bottom-color: rgba(90, 130, 170, 0.12);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .daily-sky-close-x-top,
+.daily-sky-wrapper.sky-daily--morning .daily-sky-close-x-top {
+  background: rgba(255, 255, 255, 0.6);
+  color: rgba(45, 68, 100, 0.92);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .daily-sky-tabs .daily-sky-tab,
+.daily-sky-wrapper.sky-daily--morning .daily-sky-tabs .daily-sky-tab {
+  color: rgba(45, 68, 100, 0.7);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .daily-sky-tabs .daily-sky-tab--active,
+.daily-sky-wrapper.sky-daily--morning .daily-sky-tabs .daily-sky-tab--active {
+  color: rgba(35, 55, 84, 0.96);
+  border-bottom-color: rgba(35, 55, 84, 0.55);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-panel-date,
+.daily-sky-wrapper.sky-daily--morning .day-panel-date {
+  color: rgba(35, 55, 84, 0.88);
+  text-shadow: none;
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-panel-count,
+.daily-sky-wrapper.sky-daily--morning .day-panel-count {
+  color: rgba(35, 55, 84, 0.94);
+  text-shadow: none;
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-nav,
+.daily-sky-wrapper.sky-daily--morning .day-nav {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(90, 130, 170, 0.22);
+  color: rgba(45, 68, 100, 0.9);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-panel-empty p,
+.daily-sky-wrapper.sky-daily--morning .day-panel-empty p {
+  color: rgba(45, 68, 100, 0.82);
+  text-shadow: none;
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-bubble-text,
+.daily-sky-wrapper.sky-daily--morning .day-bubble-text {
+  color: rgba(32, 50, 82, 0.9);
+  text-shadow: none;
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-bubble-check,
+.daily-sky-wrapper.sky-daily--morning .day-bubble-check {
+  color: rgba(45, 68, 100, 0.82);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .daily-sky-footer,
+.daily-sky-wrapper.sky-daily--morning .daily-sky-footer {
+  background: rgba(255, 255, 255, 0.24);
+  border-top-color: rgba(90, 130, 170, 0.12);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .daily-sky-close-btn,
+.daily-sky-wrapper.sky-daily--morning .daily-sky-close-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(90, 130, 170, 0.2);
+  color: rgba(35, 55, 84, 0.94);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .daily-sky-close-btn:active,
+.daily-sky-wrapper.sky-daily--morning .daily-sky-close-btn:active {
+  background: rgba(255, 255, 255, 0.88);
+}
+
 /* ── 上部バー（× ボタン + タブ）── */
 .daily-sky-top-bar {
   flex-shrink: 0;
@@ -189,25 +267,6 @@
 .day-panel-inner {
   position: relative;
   min-height: 100%;
-}
-
-/* 0個のとき */
-.day-panel-empty {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.day-panel-empty p {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.75);
-  text-align: center;
-  font-style: italic;
-  letter-spacing: 0.04em;
-  text-shadow: 0 1px 6px rgba(0, 30, 80, 0.2);
 }
 
 /* ── シャボン玉 ── */

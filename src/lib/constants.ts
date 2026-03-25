@@ -10,31 +10,35 @@ export const FREE_JOURNAL_DAYS = 30;
 // ブルーラグーン サウンド＆背景の統合設定
 export const LAGOON_SOUND_CONFIG: Record<string, {
   label: string;
-  soundFile: string | null;
+  soundFiles: string[] | null;
   imageFile: string;
   fallbackGradient: string;
+  loopTrimStartSeconds?: number;
+  loopTrimEndSeconds?: number;
 }> = {
   none: {
     label: '無音',
-    soundFile: null,
+    soundFiles: null,
     imageFile: '/images/lagoon-aurora.png',
     fallbackGradient: 'linear-gradient(45deg, #0a0a2e, #1a1a4e, #0d3b66, #1a6b4a)',
   },
   rain: {
     label: '雨音',
-    soundFile: '/sounds/rain.mp3',
+    soundFiles: ['/sounds/rain.ogg', '/sounds/rain.mp3'],
     imageFile: '/images/theme-rain.png',
     fallbackGradient: 'linear-gradient(180deg, #4a5568, #718096, #a0aec0, #718096)',
   },
   wave: {
     label: '波の音',
-    soundFile: '/sounds/wave.mp3',
+    soundFiles: ['/sounds/wave.ogg', '/sounds/wave.mp3'],
     imageFile: '/images/theme-ocean.png',
     fallbackGradient: 'linear-gradient(180deg, #2b6cb0, #4299e1, #63b3ed, #ebf8ff)',
+    loopTrimStartSeconds: 0.1,
+    loopTrimEndSeconds: 0.15,
   },
   bonfire: {
     label: '焚き火',
-    soundFile: '/sounds/bonfire.mp3',
+    soundFiles: ['/sounds/bonfire.ogg', '/sounds/bonfire.mp3'],
     imageFile: '/images/theme-bonfire.png',
     fallbackGradient: 'linear-gradient(180deg, #1a202c, #2d3748, #744210, #c05621)',
   },

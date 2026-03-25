@@ -21,3 +21,7 @@ export const supabase: SupabaseClient | null =
     : null;
 
 export const isSupabaseEnabled = supabase !== null;
+
+// デバッグ確認用ログ
+console.log('Supabase URL:', supabaseUrl || '（未設定）');
+console.log('Supabase enabled:', isSupabaseEnabled);

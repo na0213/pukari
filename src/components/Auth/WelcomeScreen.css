@@ -1,0 +1,150 @@
+/* ── ウェルカム画面 ── */
+.welcome-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--sky-dawn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32px;
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ── ロゴ ── */
+.welcome-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.welcome-logo-image {
+  height: 80px;
+  width: auto;
+}
+
+.welcome-logo-text {
+  font-size: 34px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.88);
+  letter-spacing: 0.14em;
+}
+
+/* ── サブテキスト ── */
+.welcome-tagline {
+  margin: 0 0 36px;
+  font-size: 13px;
+  color: rgba(55, 78, 108, 0.9);
+  letter-spacing: 0.1em;
+  font-style: italic;
+}
+
+/* ── セキュリティ説明 ── */
+.welcome-security {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 28px;
+  padding: 0 4px;
+}
+
+.welcome-security-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  color: rgba(80, 120, 160, 0.8);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.welcome-security-icon svg {
+  display: block;
+}
+
+.welcome-security-text {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(80, 120, 160, 0.8);
+  line-height: 1.65;
+  text-align: left;
+}
+
+/* ── Googleボタン ── */
+.welcome-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 80%;
+  padding: 13px 20px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.06);
+  font-size: 15px;
+  font-family: inherit;
+  color: rgba(40, 40, 40, 0.88);
+  cursor: pointer;
+  margin-bottom: 22px;
+  transition: box-shadow 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.welcome-google-btn:active:not(:disabled) {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transform: scale(0.98);
+}
+
+.welcome-google-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── ゲストリンク ── */
+.welcome-guest-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.welcome-guest-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: rgba(80, 120, 170, 0.75);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.welcome-guest-btn:active:not(:disabled) {
+  opacity: 0.6;
+}
+
+.welcome-guest-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.welcome-guest-note {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(65, 92, 124, 0.82);
+  line-height: 1.7;
+}

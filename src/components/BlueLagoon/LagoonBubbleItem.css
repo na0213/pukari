@@ -1,45 +1,135 @@
 /* ── ラグーン意気込みシャボン玉 ── */
 .lagoon-bubble {
+  appearance: none;
+  -webkit-appearance: none;
   position: absolute;
+  display: block;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+.lagoon-bubble:focus-visible {
+  outline: 2px solid rgba(160, 230, 255, 0.8);
+  outline-offset: 3px;
+}
+
+.lagoon-bubble-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: radial-gradient(
-    circle at 35% 30%,
-    rgba(255, 255, 255, 0.25),
-    rgba(150, 220, 255, 0.08)
-  );
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  animation: float 6s ease-in-out infinite;
-  pointer-events: none;
-}
+  overflow: hidden;
 
-/* 自分の泡: 少し明るく */
-.lagoon-bubble--mine {
+  /* リアルな膜：多層グラデーション */
   background: radial-gradient(
-    circle at 35% 30%,
-    rgba(255, 255, 255, 0.45),
-    rgba(150, 230, 255, 0.2)
+    circle at 30% 25%,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.12) 20%,
+    rgba(100, 200, 255, 0.08) 40%,
+    rgba(160, 100, 255, 0.05) 60%,
+    rgba(255, 255, 255, 0.06) 80%,
+    transparent 100%
   );
-  border-color: rgba(255, 255, 255, 0.6);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow:
-    0 0 12px 3px rgba(150, 230, 255, 0.2),
-    inset 0 0 8px rgba(255, 255, 255, 0.1);
+    inset 0 0 20px rgba(255, 255, 255, 0.12),
+    inset -4px -4px 12px rgba(160, 100, 255, 0.06),
+    0 0 20px rgba(100, 200, 255, 0.15),
+    0 4px 16px rgba(80, 160, 220, 0.1);
+
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+
+  animation: bubble-float 8s ease-in-out infinite;
+  will-change: transform;
 }
 
-/* 他の人の泡: 控えめ */
-.lagoon-bubble--other {
-  opacity: 0.45;
+/* 光のハイライト（左上の丸い反射） */
+.lagoon-bubble-surface::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 16%;
+  width: 28%;
+  height: 22%;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* オーロラ反射（mix-blend-mode: screen で光を重ねる） */
+.lagoon-bubble-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 60% 70%,
+    rgba(80, 200, 255, 0.18) 0%,
+    rgba(160, 80, 255, 0.12) 40%,
+    rgba(80, 255, 200, 0.08) 70%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  animation: aurora-shift 6s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes aurora-shift {
+  0%   { opacity: 0.6; transform: rotate(0deg) scale(1); }
+  50%  { opacity: 1;   transform: rotate(8deg) scale(1.05); }
+  100% { opacity: 0.5; transform: rotate(-4deg) scale(0.95); }
+}
+
+/* 自分の泡: より明るく・存在感あり */
+.lagoon-bubble-surface--mine {
+  background: radial-gradient(
+    circle at 30% 25%,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.18) 20%,
+    rgba(100, 220, 255, 0.12) 40%,
+    rgba(180, 120, 255, 0.08) 60%,
+    rgba(255, 255, 255, 0.1) 80%,
+    transparent 100%
+  );
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 0 28px rgba(255, 255, 255, 0.18),
+    inset -4px -4px 12px rgba(180, 120, 255, 0.1),
+    0 0 30px rgba(100, 210, 255, 0.3),
+    0 0 60px rgba(100, 210, 255, 0.1);
+}
+
+/* 他の人の泡: 少し控えめ */
+.lagoon-bubble-surface--other {
+  opacity: 0.65;
+}
+
+.lagoon-bubble-surface--compact {
+  padding: 5px;
 }
 
 /* 意気込みテキスト */
 .lagoon-bubble-text {
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.92);
   text-align: center;
   line-height: 1.3;
   overflow: hidden;
@@ -49,4 +139,22 @@
   word-break: break-all;
   max-width: 100%;
   padding: 0 4px;
+  text-shadow: 0 0 8px rgba(100, 200, 255, 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+.lagoon-bubble-surface--compact .lagoon-bubble-text {
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lagoon-bubble-surface {
+    animation: none;
+  }
+  .lagoon-bubble-surface::after {
+    animation: none;
+    opacity: 0.6;
+  }
 }

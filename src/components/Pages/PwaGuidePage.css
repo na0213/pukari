@@ -112,7 +112,17 @@
 }
 
 .pwa-tab-icon {
-  font-size: 15px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 18px;
+  color: currentColor;
+}
+
+.pwa-tab-icon svg {
+  display: block;
 }
 
 /* ── ステップ一覧 ── */

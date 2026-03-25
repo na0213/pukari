@@ -119,9 +119,7 @@ function DaySlide({
       <div className="day-panel-scroll-wrapper">
         <div className="day-panel-scroll" ref={scrollRef}>
           {count === 0 ? (
-            <div className="day-panel-empty">
-              <p>おだやかな空</p>
-            </div>
+            <div className="day-panel-empty" aria-hidden="true" />
           ) : (
             <div
               className="day-panel-inner"

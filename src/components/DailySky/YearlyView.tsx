@@ -30,6 +30,7 @@ const MONTH_LABELS = [
 export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyViewProps) {
   const currentMonth = new Date().getMonth(); // 0-indexed
   const [swipeId, setSwipeId] = useState<string | null>(null);
+  const [activeDeleteId, setActiveDeleteId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const touchRef = useRef<{ startX: number; id: string } | null>(null);
 
@@ -67,7 +68,13 @@ export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyView
     <div className="ym-wrap">
       <div className="ym-year-label">{year}年</div>
 
-      <div className="ym-scroll" onClick={() => setSwipeId(null)}>
+      <div
+        className="ym-scroll"
+        onClick={() => {
+          setSwipeId(null);
+          setActiveDeleteId(null);
+        }}
+      >
         <table className="ym-table">
           <thead>
             <tr>
@@ -82,8 +89,6 @@ export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyView
           <tbody>
             {sortedBubbles.map((bubble) => {
               const doneMonths = monthlyMap[bubble.id] ?? Array(12).fill(false);
-              const isCompleted = bubble.status === 'completed';
-              const isNearby = bubble.status === 'nearby';
               const isSwiped = swipeId === bubble.id;
 
               return (
@@ -94,21 +99,26 @@ export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyView
                     onTouchEnd={onRemove ? (e) => handleTouchEnd(e, bubble.id) : undefined}
                   >
                     <div className={`ym-name-cell-inner ${isSwiped ? 'ym-name-cell-inner--swiped' : ''}`}>
-                      <span
-                        className={
-                          isCompleted
-                            ? 'ym-bubble-text ym-bubble-text--completed'
-                            : isNearby
-                            ? 'ym-bubble-text ym-bubble-text--nearby'
-                            : 'ym-bubble-text'
-                        }
+                      <button
+                        type="button"
+                        className="ym-bubble-text-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!onRemove) return;
+                          setActiveDeleteId((current) => (current === bubble.id ? null : bubble.id));
+                        }}
+                        aria-label={`${bubble.text} の操作`}
                       >
-                        {bubble.text}
-                      </span>
-                      {onRemove && (
+                        <span className="ym-bubble-text">{bubble.text}</span>
+                      </button>
+                      {onRemove && activeDeleteId === bubble.id && (
                         <button
+                          type="button"
                           className="ym-delete-reveal-btn"
-                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(bubble.id); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setConfirmDeleteId(bubble.id);
+                          }}
                           aria-label="この泡を消す"
                         >
                           消す
@@ -154,6 +164,7 @@ export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyView
                   onRemove?.(confirmDeleteId);
                   setConfirmDeleteId(null);
                   setSwipeId(null);
+                  setActiveDeleteId(null);
                 }}
               >
                 消す

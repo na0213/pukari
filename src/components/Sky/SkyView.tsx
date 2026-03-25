@@ -12,6 +12,7 @@ import DailySkyView from '../DailySky/DailySkyView';
 import LagoonEntryModal from '../BlueLagoon/LagoonEntryModal';
 import Header from '../Layout/Header';
 import Footer from '../Layout/Footer';
+import type { UseAuthReturn } from '../../hooks/useAuth';
 import type { FooterActiveItem } from '../Layout/Footer';
 import './SkyView.css';
 
@@ -30,6 +31,39 @@ function generateStars(count: number): StarData[] {
     duration: 1.5 + Math.random() * 2,
     delay: Math.random() * 4,
   }));
+}
+
+// ── 光の粒子データ ──
+interface ParticleData {
+  id: number;
+  x: number;    // % (left)
+  y: number;    // % (top)
+  duration: number;
+  delay: number;
+}
+
+function generateParticles(count: number): ParticleData[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: 5 + Math.random() * 90,
+    y: 5 + Math.random() * 90,
+    duration: 3 + Math.random() * 4,
+    delay: Math.random() * 5,
+  }));
+}
+
+// ── スパークルデータ ──
+interface SparkleParticle {
+  id: number;
+  sx: number;   // --sparkle-x (px)
+  sy: number;   // --sparkle-y (px)
+}
+
+interface SparkleSet {
+  key: string;  // 一意キー
+  x: number;   // % on canvas
+  y: number;
+  particles: SparkleParticle[];
 }
 
 // ── 空のキャンバス幅（泡の個数に応じて拡張） ──
@@ -86,10 +120,14 @@ const EXIT_COMPLETED: TargetAndTransition = {
 interface SkyViewProps {
   onEnterLagoon: (message: string) => Promise<void>;
   onOpenAbout: () => void;
+  onOpenGuest: () => void;
   onOpenPwa: () => void;
+  onOpenPrivacy: () => void;
+  auth: UseAuthReturn;
+  onSignOut: () => void;
 }
 
-export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenPwa }: SkyViewProps) {
+export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpenPwa, onOpenPrivacy, auth, onSignOut }: SkyViewProps) {
   const {
     bubbles,
     activeBubbles,
@@ -127,6 +165,10 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenPwa }: SkyVi
   const skyRef = useRef<HTMLDivElement>(null);
 
   const stars = useMemo(() => generateStars(17), []);
+  const particles = useMemo(() => generateParticles(6), []);
+
+  // スパークル（「できた！」エフェクト）
+  const [sparkles, setSparkles] = useState<SparkleSet[]>([]);
 
   // 選択中の泡（exiting中も含めて探す）
   const selectedBubble =
@@ -157,6 +199,26 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenPwa }: SkyVi
       setTimeout(() => {
         setExitingBubbles((prev) => prev.filter((b) => b.id !== id));
       }, 900);
+
+      // スパークルエフェクト
+      const pos = positionMap.current.get(id);
+      if (pos) {
+        const count = 5 + Math.floor(Math.random() * 4); // 5〜8個
+        const sparkleSet: SparkleSet = {
+          key: `${id}-${Date.now()}`,
+          x: pos.x,
+          y: pos.y,
+          particles: Array.from({ length: count }, (_, i) => ({
+            id: i,
+            sx: (Math.random() - 0.5) * 60,  // -30〜30px
+            sy: (Math.random() - 0.5) * 60,
+          })),
+        };
+        setSparkles((prev) => [...prev, sparkleSet]);
+        setTimeout(() => {
+          setSparkles((prev) => prev.filter((s) => s.key !== sparkleSet.key));
+        }, 850);
+      }
     }
     markDone(id);
     setSelectedBubbleId(null);
@@ -222,7 +284,6 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenPwa }: SkyVi
     return { bubble, pos };
   });
 
-  const isScrollable = activeBubbles.length > 10;
   const skyCanvasWidth = getSkyCanvasWidth(activeBubbles.length);
 
   // 未使用変数の警告を避ける（getLogsForBubbleMonth は DailySkyView で使用）
@@ -232,7 +293,7 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenPwa }: SkyVi
     <div className={`sky-view sky-view--${skyPhase}`} aria-label="Pukariの空">
 
       {/* ヘッダー */}
-      <Header onOpenAbout={onOpenAbout} onOpenPwa={onOpenPwa} />
+      <Header onOpenAbout={onOpenAbout} onOpenGuest={onOpenGuest} onOpenPwa={onOpenPwa} onOpenPrivacy={onOpenPrivacy} auth={auth} onSignOut={onSignOut} />
 
       {/* 星レイヤー（night のみ） */}
       {skyPhase === 'night' && (
@@ -254,6 +315,22 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenPwa }: SkyVi
         </div>
       )}
 
+      {/* 光の粒子レイヤー */}
+      <div className="sky-particles" aria-hidden="true">
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="sky-particle"
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              '--particle-duration': `${p.duration}s`,
+              '--particle-delay': `${p.delay}s`,
+            } as React.CSSProperties}
+          />
+        ))}
+      </div>
+
       {/* 横スクロールエリア */}
       <div className="sky-scroll-container" ref={skyRef}>
         <div className="sky-canvas" style={{ width: skyCanvasWidth }}>
@@ -273,11 +350,25 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenPwa }: SkyVi
               );
             })}
           </AnimatePresence>
+
+          {/* スパークルエフェクト */}
+          {sparkles.flatMap((set) =>
+            set.particles.map((p) => (
+              <div
+                key={`${set.key}-${p.id}`}
+                className="bubble-sparkle"
+                style={{
+                  left: `${set.x}%`,
+                  top: `${set.y}%`,
+                  '--sparkle-x': `${p.sx}px`,
+                  '--sparkle-y': `${p.sy}px`,
+                } as React.CSSProperties}
+                aria-hidden="true"
+              />
+            ))
+          )}
         </div>
       </div>
-
-      {/* スクロールヒント */}
-      {isScrollable && <div className="sky-scroll-hint" aria-hidden="true" />}
 
       {/* 入力バー（フッターの上に固定） */}
       <div className="sky-input-bar">

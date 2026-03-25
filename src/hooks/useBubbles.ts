@@ -3,9 +3,6 @@ import type { Bubble, BubbleStatus, BubbleLog } from '../types/bubble';
 import { FREE_BUBBLE_LIMIT } from '../lib/constants';
 import { supabase } from '../lib/supabase';
 
-const BUBBLES_KEY = 'pukari-bubbles';
-const LOGS_KEY = 'pukari-logs';
-
 // ── 日付ユーティリティ ──
 
 function todayJST(): string {
@@ -23,114 +20,6 @@ function sizeFactorFromId(id: string): number {
   const hex = id.replace(/-/g, '').slice(0, 8);
   const n = parseInt(hex, 16) / 0xffffffff;
   return 0.8 + n * 0.4;
-}
-
-// ── localStorage のシリアライズ ──
-
-// 旧フォーマットを含む柔軟な型
-type RawBubble = {
-  id: string;
-  text: string;
-  memo?: string;
-  status: string;
-  sizeFactor?: number;
-  repeatable?: boolean;  // 旧フィールド（無視）
-  createdAt: string;
-  touchedAt?: string;    // 旧フィールド（無視）
-  completedAt?: string;
-  driftedAt?: string;    // 旧フィールド（無視）
-  doneAt?: string;       // 旧旧フィールド
-};
-
-function toRawBubble(b: Bubble): RawBubble {
-  return {
-    id: b.id,
-    text: b.text,
-    memo: b.memo,
-    status: b.status,
-    sizeFactor: b.sizeFactor,
-    createdAt: b.createdAt.toISOString(),
-    completedAt: b.completedAt?.toISOString(),
-  };
-}
-
-function fromRawBubble(raw: RawBubble): Bubble {
-  // status 移行: 旧状態 → 新状態
-  const rawStatus = raw.status as string;
-  let status: BubbleStatus;
-  if (rawStatus === 'completed' || rawStatus === 'done') status = 'completed';
-  else if (rawStatus === 'nearby') status = 'nearby';
-  else status = 'floating'; // touched, drifted, floating → floating
-
-  const completedAt = raw.completedAt
-    ? new Date(raw.completedAt)
-    : raw.doneAt
-    ? new Date(raw.doneAt)
-    : undefined;
-
-  return {
-    id: raw.id,
-    text: raw.text,
-    memo: raw.memo,
-    status,
-    sizeFactor: raw.sizeFactor ?? sizeFactorFromId(raw.id),
-    createdAt: new Date(raw.createdAt),
-    completedAt,
-  };
-}
-
-type RawBubbleLog = {
-  id: string;
-  bubbleId: string;
-  date: string;
-  type: string; // 旧データは 'touched' がある可能性
-  createdAt: string;
-};
-
-function toRawLog(l: BubbleLog): RawBubbleLog {
-  return { ...l, createdAt: l.createdAt.toISOString() };
-}
-
-function fromRawLog(raw: RawBubbleLog): BubbleLog | null {
-  // 旧 'touched' ログは廃止。'done' のみ残す
-  if (raw.type !== 'done') return null;
-  return {
-    id: raw.id,
-    bubbleId: raw.bubbleId,
-    date: raw.date,
-    type: 'done',
-    createdAt: new Date(raw.createdAt),
-  };
-}
-
-function loadBubbles(): Bubble[] {
-  try {
-    const raw = localStorage.getItem(BUBBLES_KEY);
-    if (!raw) return [];
-    return (JSON.parse(raw) as RawBubble[]).map(fromRawBubble);
-  } catch {
-    return [];
-  }
-}
-
-function loadLogs(): BubbleLog[] {
-  try {
-    const raw = localStorage.getItem(LOGS_KEY);
-    if (!raw) return [];
-    return (JSON.parse(raw) as RawBubbleLog[])
-      .map(fromRawLog)
-      .filter((l): l is BubbleLog => l !== null);
-  } catch {
-    return [];
-  }
-}
-
-function saveBubbles(bubbles: Bubble[]) {
-  localStorage.setItem(BUBBLES_KEY, JSON.stringify(bubbles.map(toRawBubble)));
-}
-
-function saveLogs(logs: BubbleLog[]) {
-  localStorage.setItem(LOGS_KEY, JSON.stringify(logs.map(toRawLog)));
 }
 
 // ── Supabase 行型 ──
@@ -235,18 +124,6 @@ async function fetchFromSupabase(userId: string) {
   };
 }
 
-async function migrateToSupabase(
-  userId: string,
-  bubbles: Bubble[],
-  logs: BubbleLog[]
-) {
-  if (bubbles.length === 0) return;
-  await supabase!.from('bubbles').upsert(bubbles.map((b) => toRow(b, userId)));
-  if (logs.length > 0) {
-    await supabase!.from('bubble_logs').upsert(logs.map((l) => toLogRow(l, userId)));
-  }
-}
-
 // ── 公開インターフェース ──
 
 export interface UseBubblesReturn {
@@ -274,8 +151,8 @@ export interface UseBubblesReturn {
 }
 
 export function useBubbles(): UseBubblesReturn {
-  const [bubbles, setBubbles] = useState<Bubble[]>(() => loadBubbles());
-  const [logs, setLogs] = useState<BubbleLog[]>(() => loadLogs());
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [logs, setLogs] = useState<BubbleLog[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(false);
 
@@ -296,39 +173,25 @@ export function useBubbles(): UseBubblesReturn {
     return () => subscription.unsubscribe();
   }, []);
 
-  // ── Supabase から初回ロード・マイグレーション ──
+  // ── Supabase から初回ロード ──
   useEffect(() => {
     if (!userId || !supabase) return;
 
     (async () => {
       try {
         const { bubbles: sbBubbles, logs: sbLogs } = await fetchFromSupabase(userId);
-
-        if (sbBubbles.length === 0) {
-          const localBubbles = loadBubbles();
-          const localLogs = loadLogs();
-          if (localBubbles.length > 0) {
-            await migrateToSupabase(userId, localBubbles, localLogs);
-          }
-        } else {
-          setBubbles(sbBubbles);
-          setLogs(sbLogs);
-          saveBubbles(sbBubbles);
-          saveLogs(sbLogs);
-        }
-
+        setBubbles(sbBubbles);
+        setLogs(sbLogs);
         setIsOnline(true);
         syncedRef.current = true;
       } catch (err) {
-        console.warn('Supabase sync failed — using localStorage:', err);
+        console.warn('Supabase sync failed — starting with empty state:', err);
+        setBubbles([]);
+        setLogs([]);
         setIsOnline(false);
       }
     })();
   }, [userId]);
-
-  // ── localStorage に自動保存 ──
-  useEffect(() => { saveBubbles(bubbles); }, [bubbles]);
-  useEffect(() => { saveLogs(logs); }, [logs]);
 
   // ── Supabase 同期ヘルパー（fire-and-forget） ──
 

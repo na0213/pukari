@@ -1,0 +1,165 @@
+/* ── オーバーレイ ── */
+.gconsent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(10, 30, 60, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  animation: gconsent-fade-in 0.2s ease;
+}
+
+@keyframes gconsent-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── モーダル本体 ── */
+.gconsent-modal {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 16px;
+  padding: 32px 24px 28px;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 12px 40px rgba(10, 30, 80, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  animation: gconsent-pop-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes gconsent-pop-in {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* ── タイトル ── */
+.gconsent-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #222;
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+/* ── リード文 ── */
+.gconsent-lead {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.8;
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+/* ── リスト ── */
+.gconsent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  align-self: stretch;
+  padding-left: 8px;
+}
+
+.gconsent-list li {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.8;
+  padding-left: 16px;
+  position: relative;
+}
+
+.gconsent-list li::before {
+  content: '・';
+  position: absolute;
+  left: 0;
+  color: #888;
+}
+
+/* ── 補足テキスト ── */
+.gconsent-note {
+  font-size: 13px;
+  color: #777;
+  line-height: 1.7;
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+/* ── プライバシーポリシーリンク ── */
+.gconsent-privacy-link {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  color: rgba(60, 120, 200, 0.9);
+  text-decoration: underline;
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 0;
+}
+
+.gconsent-privacy-link:active {
+  opacity: 0.6;
+}
+
+/* ── ボタン群 ── */
+.gconsent-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 80%;
+}
+
+/* ── Googleで続けるボタン ── */
+.gconsent-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  border: 1.5px solid #dadce0;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: #3c4043;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.15s ease;
+}
+
+.gconsent-google-btn:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.gconsent-google-btn:active {
+  background: #f8f9fa;
+}
+
+.gconsent-google-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── やめるリンク ── */
+.gconsent-cancel {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 14px;
+  color: #999;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.gconsent-cancel:active {
+  opacity: 0.6;
+}

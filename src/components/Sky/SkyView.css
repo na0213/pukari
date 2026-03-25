@@ -4,7 +4,14 @@
   inset: 0;
   overflow: hidden;
   background: var(--sky-dawn);
-  transition: background var(--transition-speed) ease;
+  /* 「できた！」で空の色がじんわり変わる */
+  transition: background 1.5s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-view {
+    transition: none;
+  }
 }
 
 /* 空のグラデーション（フェーズ別） */
@@ -13,6 +20,64 @@
 .sky-view--afternoon { background: var(--sky-afternoon); }
 .sky-view--sunset    { background: var(--sky-sunset); }
 .sky-view--night     { background: var(--sky-night); }
+
+/* ── 朝の空では文字を濃くする ── */
+.sky-view--dawn .sky-header-title,
+.sky-view--morning .sky-header-title {
+  color: rgba(38, 62, 92, 0.92);
+  text-shadow: none;
+}
+
+.sky-view--dawn .sky-header-menu-btn,
+.sky-view--morning .sky-header-menu-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(120, 160, 200, 0.22);
+  color: rgba(38, 62, 92, 0.9);
+}
+
+.sky-view--dawn .sky-header-menu-btn:active,
+.sky-view--morning .sky-header-menu-btn:active {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.sky-view--dawn .bubble-input-wrap,
+.sky-view--morning .bubble-input-wrap {
+  background: rgba(255, 255, 255, 0.56);
+  border-color: rgba(120, 160, 200, 0.18);
+}
+
+.sky-view--dawn .bubble-input-wrap:focus-within,
+.sky-view--morning .bubble-input-wrap:focus-within {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(120, 160, 200, 0.28);
+}
+
+.sky-view--dawn .bubble-input-field,
+.sky-view--morning .bubble-input-field {
+  color: rgba(35, 56, 86, 0.92);
+}
+
+.sky-view--dawn .bubble-input-field::placeholder,
+.sky-view--morning .bubble-input-field::placeholder {
+  color: rgba(70, 92, 125, 0.72);
+}
+
+.sky-view--dawn .bubble-input-submit,
+.sky-view--morning .bubble-input-submit {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(120, 160, 200, 0.22);
+  color: rgba(35, 56, 86, 0.92);
+}
+
+.sky-view--dawn .bubble-input-submit:hover,
+.sky-view--morning .bubble-input-submit:hover {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.sky-view--dawn .app-footer-label,
+.sky-view--morning .app-footer-label {
+  text-shadow: none;
+}
 
 /* ── 星レイヤー（night のみ、スクロール外に固定） ── */
 .sky-stars {
@@ -57,16 +122,66 @@
   /* 幅は SkyView.tsx の inline style で設定 */
 }
 
-/* ── スクロールヒント（右端フェードアウト） ── */
-.sky-scroll-hint {
+/* ── 光の粒子レイヤー ── */
+.sky-particles {
   position: absolute;
   top: 44px;
+  left: 0;
   right: 0;
   bottom: 128px;
-  width: 64px;
-  background: linear-gradient(to right, transparent, rgba(180, 210, 240, 0.38));
+  z-index: 0;
   pointer-events: none;
-  z-index: 2;
+}
+
+.sky-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+  animation: particle-glow var(--particle-duration, 4s) ease-in-out infinite;
+  animation-delay: var(--particle-delay, 0s);
+}
+
+@keyframes particle-glow {
+  0%, 100% { opacity: 0.1; transform: scale(0.8); }
+  50%       { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* ── 「できた！」スパークル ── */
+.bubble-sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  animation: sparkle-burst 0.85s ease-out forwards;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+@keyframes sparkle-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+      calc(-50% + var(--sparkle-x, 0px)),
+      calc(-50% + var(--sparkle-y, 0px))
+    ) scale(0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-cloud     { animation: none; opacity: 0.06; }
+  .sky-particle  { animation: none; opacity: 0.15; }
+  .bubble-sparkle { display: none; }
 }
 
 /* ── 入力バー（フッターの上に固定） ── */

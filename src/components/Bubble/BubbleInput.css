@@ -64,6 +64,34 @@
   cursor: not-allowed;
 }
 
+.sky-view--night .bubble-input-wrap {
+  background: rgba(255, 255, 255, 0.44);
+  border-color: rgba(255, 255, 255, 0.72);
+}
+
+.sky-view--night .bubble-input-wrap:focus-within {
+  background: rgba(255, 255, 255, 0.56);
+  border-color: rgba(255, 255, 255, 0.88);
+}
+
+.sky-view--night .bubble-input-field {
+  color: rgba(26, 38, 78, 0.9);
+}
+
+.sky-view--night .bubble-input-field::placeholder {
+  color: rgba(63, 82, 123, 0.78);
+}
+
+.sky-view--night .bubble-input-submit {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(255, 255, 255, 0.88);
+  color: rgba(36, 54, 95, 0.95);
+}
+
+.sky-view--night .bubble-input-submit:hover {
+  background: rgba(255, 255, 255, 0.88);
+}
+
 /* 上限メッセージ */
 .bubble-limit-msg {
   flex: 1;

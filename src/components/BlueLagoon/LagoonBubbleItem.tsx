@@ -1,25 +1,42 @@
 import type { LagoonBubble } from '../../types/bluelagoon';
+import { motion, useReducedMotion } from 'framer-motion';
 import './LagoonBubbleItem.css';
 
 interface LagoonBubbleItemProps {
   bubble: LagoonBubble;
   isOwn: boolean;
+  compact?: boolean;
+  onClick?: () => void;
+  appear?: boolean;
+  delay?: number;
+  ownSize?: number;           // 参加人数別サイズ（省略時はデフォルト）
+  otherSize?: number;
+  canvasWidthFactor?: number; // キャンバス幅係数（1=100vw, 2=200vw …）
 }
 
 // IDから決定論的な位置とアニメーション設定を算出
 function styleFromBubble(
   id: string,
-  isOwn: boolean
+  isOwn: boolean,
+  compact: boolean,
+  ownSize: number,
+  otherSize: number,
+  canvasWidthFactor: number,
 ): React.CSSProperties {
   const hex = id.replace(/-/g, '').slice(0, 12);
   const n = parseInt(hex.slice(0, 8), 16);
   const m = parseInt(hex.slice(4, 12), 16);
 
-  const x = 8 + (n % 1000) / 1000 * 72;       // 8% - 80%
-  const y = 12 + (Math.abs(m) % 800) / 800 * 50; // 12% - 62%
-  const size = isOwn ? 72 : 52 + (n % 200) / 200 * 16;
-  const duration = 5 + (n % 3000) / 3000 * 4;   // 5〜9秒
-  const delay = -((m % 6000) / 1000);            // 負のdelay でランダム開始
+  // 自分の泡は最初のビューポート内（左端〜100vw）に収める
+  const x = isOwn
+    ? (8 / canvasWidthFactor) + (n % 1000) / 1000 * (64 / canvasWidthFactor)
+    : 8 + (n % 1000) / 1000 * 72;              // 他者は全幅に散布
+  const y = 12 + (Math.abs(m) % 800) / 800 * 50;
+  const sizeBase = isOwn ? ownSize : otherSize;
+  const sizeJitter = isOwn ? 0 : Math.round((n % 200) / 200 * sizeBase * 0.15);
+  const size = sizeBase + sizeJitter;
+  const duration = 7 + (n % 3000) / 3000 * 3;
+  const delay = -((m % 6000) / 1000);
 
   return {
     left: `${x}%`,
@@ -31,18 +48,52 @@ function styleFromBubble(
   };
 }
 
-export default function LagoonBubbleItem({ bubble, isOwn }: LagoonBubbleItemProps) {
-  const style = styleFromBubble(bubble.id, isOwn);
+export default function LagoonBubbleItem({
+  bubble,
+  isOwn,
+  compact = false,
+  onClick,
+  appear = false,
+  delay = 0,
+  ownSize = compact ? 75 : 100,
+  otherSize = compact ? 55 : 80,
+  canvasWidthFactor = 1,
+}: LagoonBubbleItemProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const style = styleFromBubble(bubble.id, isOwn, compact, ownSize, otherSize, canvasWidthFactor);
+  const motionProps = appear && !prefersReducedMotion
+    ? {
+        initial: { scale: 0.08, opacity: 0 },
+        animate: { scale: 1, opacity: 1 },
+        transition: {
+          delay,
+          duration: 0.9,
+          ease: 'easeOut',
+        },
+      }
+    : {
+        initial: false,
+        animate: { scale: 1, opacity: 1 },
+        transition: { duration: 0 },
+      };
 
   return (
-    <div
-      className={`lagoon-bubble ${isOwn ? 'lagoon-bubble--mine' : 'lagoon-bubble--other'}`}
+    <motion.button
+      type="button"
+      className="lagoon-bubble"
       style={style}
-      aria-label={isOwn ? `自分の意気込み: ${bubble.message}` : `参加者の意気込み`}
+      aria-label={isOwn ? `自分のコメント: ${bubble.message}` : `参加者のコメント: ${bubble.message}`}
+      {...motionProps}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
     >
-      {bubble.message && (
-        <p className="lagoon-bubble-text">{bubble.message}</p>
-      )}
-    </div>
+      <div className={`lagoon-bubble-surface ${isOwn ? 'lagoon-bubble-surface--mine' : 'lagoon-bubble-surface--other'} ${compact ? 'lagoon-bubble-surface--compact' : ''}`}>
+        {bubble.message && (
+          <p className="lagoon-bubble-text">{bubble.message}</p>
+        )}
+      </div>
+    </motion.button>
   );
 }

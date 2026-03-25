@@ -20,11 +20,6 @@ export default function LagoonEntryModal({ onEnter, onClose }: LagoonEntryModalP
     onEnter(message.trim());
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleGo();
-    if (e.key === 'Escape') onClose();
-  };
-
   return (
     <>
       {/* 背景オーバーレイ */}
@@ -59,7 +54,6 @@ export default function LagoonEntryModal({ onEnter, onClose }: LagoonEntryModalP
           placeholder="今日は何をがんばる？"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
           maxLength={40}
           aria-label="今日の意気込み"
         />

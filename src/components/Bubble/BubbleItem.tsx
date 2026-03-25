@@ -13,6 +13,14 @@ function getBaseSize(totalCount: number): number {
   return 30;
 }
 
+function seededRandom(seed: string): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return (Math.sin(hash) + 1) / 2;
+}
+
 function getBubbleSize(totalCount: number, bubble: Bubble): number {
   const base = getBaseSize(totalCount);
   const keepMultiplier = bubble.status === 'nearby' ? 1.3 : 1.0;
@@ -48,8 +56,14 @@ export default function BubbleItem({
   exitAnimation,
   isHighlighted = false,
 }: BubbleItemProps) {
-  const floatDuration = useMemo(() => 3 + Math.random() * 3, []);
-  const floatDelay = useMemo(() => Math.random() * 2, []);
+  const floatDuration = useMemo(
+    () => 3 + seededRandom(`${bubble.id}:duration`) * 3,
+    [bubble.id]
+  );  // 3〜6s
+  const floatDelay = useMemo(
+    () => seededRandom(`${bubble.id}:delay`) * 3,
+    [bubble.id]
+  );          // 0〜3s
 
   const size = getBubbleSize(totalCount, bubble);
   const fontSize = Math.max(7, Math.round(size * 0.15));

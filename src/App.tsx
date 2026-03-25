@@ -4,11 +4,14 @@ import './styles/animations.css';
 import SkyView from './components/Sky/SkyView';
 import BlueLagoonView from './components/BlueLagoon/BlueLagoonView';
 import AboutPage from './components/Pages/AboutPage';
+import GuestGuidePage from './components/Pages/GuestGuidePage';
 import PwaGuidePage from './components/Pages/PwaGuidePage';
+import PrivacyPolicyPage from './components/Pages/PrivacyPolicyPage';
+import WelcomeScreen from './components/Auth/WelcomeScreen';
 import { useAuth } from './hooks/useAuth';
 import { useLagoon } from './hooks/useLagoon';
 
-type CurrentPage = null | 'about' | 'pwa';
+type CurrentPage = null | 'about' | 'guest' | 'pwa' | 'privacy';
 
 function LoadingScreen() {
   return (
@@ -48,29 +51,59 @@ function LoadingScreen() {
 }
 
 function App() {
-  const { loading } = useAuth();
+  const auth = useAuth();
   const lagoon = useLagoon();
   const [currentPage, setCurrentPage] = useState<CurrentPage>(null);
+  const { isLoading, user } = auth;
 
-  if (loading) return <LoadingScreen />;
+  const handleSignOut = async () => {
+    setCurrentPage(null);
+  };
+
+  if (isLoading) return <LoadingScreen />;
+
+  // 未ログイン時はウェルカム画面
+  if (!user) {
+    return (
+      <>
+        <WelcomeScreen
+          auth={auth}
+          onOpenPrivacy={() => setCurrentPage('privacy')}
+        />
+        {currentPage === 'privacy' && (
+          <PrivacyPolicyPage onClose={() => setCurrentPage(null)} />
+        )}
+      </>
+    );
+  }
 
   return (
     <main>
       {lagoon.isInLagoon ? (
         <BlueLagoonView lagoon={lagoon} />
       ) : (
-        <SkyView
+      <SkyView
           onEnterLagoon={lagoon.enterLagoon}
           onOpenAbout={() => setCurrentPage('about')}
+          onOpenGuest={() => setCurrentPage('guest')}
           onOpenPwa={() => setCurrentPage('pwa')}
+          onOpenPrivacy={() => setCurrentPage('privacy')}
+          auth={auth}
+          onSignOut={handleSignOut}
         />
       )}
 
       {currentPage === 'about' && (
         <AboutPage onClose={() => setCurrentPage(null)} />
       )}
+      {currentPage === 'guest' && (
+        <GuestGuidePage onClose={() => setCurrentPage(null)} />
+      )}
       {currentPage === 'pwa' && (
         <PwaGuidePage onClose={() => setCurrentPage(null)} />
+      )}
+      {currentPage === 'privacy' && (
+        <PrivacyPolicyPage onClose={() => setCurrentPage(null)} />
       )}
     </main>
   );

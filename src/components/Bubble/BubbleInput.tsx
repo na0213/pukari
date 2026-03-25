@@ -22,7 +22,7 @@ export default function BubbleInput({ onAdd, canAdd, totalCount }: BubbleInputPr
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-      handleSubmit();
+      e.preventDefault();
     }
   };
 

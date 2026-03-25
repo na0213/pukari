@@ -98,7 +98,9 @@
 .ym-name-cell-inner {
   display: flex;
   align-items: center;
-  gap: 0;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 8px;
   transform: translateX(0);
   transition: transform 0.2s ease;
 }
@@ -107,35 +109,26 @@
   transform: translateX(-58px);
 }
 
-/* スワイプで現れる削除ボタン */
-.ym-delete-reveal-btn {
-  flex-shrink: 0;
-  margin-left: 6px;
-  width: 52px;
-  height: 26px;
-  background: #ef5350;
-  color: #fff;
+/* 泡テキストを押すための透明ボタン */
+.ym-bubble-text-button {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+  padding: 0;
+  margin: 0;
   border: none;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
-  font-family: inherit;
-  opacity: 0;
-  transition: opacity 0.2s;
-  pointer-events: none;
 }
 
-.ym-name-cell-inner--swiped .ym-delete-reveal-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* 泡テキスト */
+/* テキスト */
 .ym-bubble-text {
   display: block;
   font-size: 13px;
-  color: #333333;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -143,14 +136,24 @@
   line-height: 1.4;
 }
 
-/* キープ中の泡: 青系 */
-.ym-bubble-text--nearby {
-  color: #1e88e5;
-}
-
-/* 完了済み泡: 薄いグレー */
-.ym-bubble-text--completed {
-  color: #999999;
+/* テキストを押したときに出る削除ボタン */
+.ym-delete-reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 24px;
+  padding: 0;
+  background: rgba(239, 83, 80, 0.12);
+  color: #d65f5f;
+  border: 1px solid rgba(239, 83, 80, 0.18);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 1px 3px rgba(239, 83, 80, 0.08);
 }
 
 /* ドットセル */
