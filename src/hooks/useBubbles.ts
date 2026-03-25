@@ -14,14 +14,6 @@ function todayJST(): string {
   }).format(new Date());
 }
 
-// ── sizeFactor をIDから決定論的に計算（Supabase経由で読み込んだ泡に使用） ──
-
-function sizeFactorFromId(id: string): number {
-  const hex = id.replace(/-/g, '').slice(0, 8);
-  const n = parseInt(hex, 16) / 0xffffffff;
-  return 0.8 + n * 0.4;
-}
-
 // ── Supabase 行型 ──
 
 interface BubbleRow {

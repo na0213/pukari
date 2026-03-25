@@ -18,7 +18,6 @@ interface LagoonBubbleItemProps {
 function styleFromBubble(
   id: string,
   isOwn: boolean,
-  compact: boolean,
   ownSize: number,
   otherSize: number,
   canvasWidthFactor: number,
@@ -60,7 +59,7 @@ export default function LagoonBubbleItem({
   canvasWidthFactor = 1,
 }: LagoonBubbleItemProps) {
   const prefersReducedMotion = useReducedMotion();
-  const style = styleFromBubble(bubble.id, isOwn, compact, ownSize, otherSize, canvasWidthFactor);
+  const style = styleFromBubble(bubble.id, isOwn, ownSize, otherSize, canvasWidthFactor);
   const motionProps = appear && !prefersReducedMotion
     ? {
         initial: { scale: 0.08, opacity: 0 },
@@ -68,7 +67,7 @@ export default function LagoonBubbleItem({
         transition: {
           delay,
           duration: 0.9,
-          ease: 'easeOut',
+          ease: 'easeOut' as const,
         },
       }
     : {
