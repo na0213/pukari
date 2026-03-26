@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage({ onClose }: PrivacyPolicyPageProps) {
             <ul className="privacy-list">
               <li>アプリの機能提供（データの保存・同期）</li>
               <li>ユーザー認証</li>
-              <li>アプリの改善</li>
+              <li>アプリの改善（利用傾向の把握、新機能の検討）</li>
             </ul>
             <p className="privacy-text">第三者への販売、広告目的での利用は一切行いません。</p>
           </section>
@@ -119,6 +119,14 @@ export default function PrivacyPolicyPage({ onClose }: PrivacyPolicyPageProps) {
                 お問い合わせフォームを開く
               </a>
             </p>
+          </section>
+
+          <section className="privacy-section">
+            <h2 className="privacy-heading">10. 運営者情報</h2>
+            <ul className="privacy-list">
+              <li>運営者: natomi</li>
+              <li>制定日: 2026年3月</li>
+            </ul>
           </section>
         </div>
       </div>

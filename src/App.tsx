@@ -97,7 +97,10 @@ function App() {
         <AboutPage onClose={() => setCurrentPage(null)} />
       )}
       {currentPage === 'guest' && (
-        <GuestGuidePage onClose={() => setCurrentPage(null)} />
+        <GuestGuidePage
+          onClose={() => setCurrentPage(null)}
+          auth={auth}
+        />
       )}
       {currentPage === 'pwa' && (
         <PwaGuidePage onClose={() => setCurrentPage(null)} />

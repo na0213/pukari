@@ -68,8 +68,7 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
         <div className="welcome-security">
           <span className="welcome-security-icon" aria-hidden="true"><LockIcon /></span>
           <p className="welcome-security-text">
-            あなたのデータは安全なクラウドサーバーに<br />
-            暗号化して保存されます
+            データは安全なクラウドに保存されます
           </p>
         </div>
 
@@ -81,7 +80,7 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
           aria-label="Googleでログインする"
         >
           <GoogleIcon />
-          Googleでログイン
+          Googleログイン
         </button>
 
         {/* ゲストリンク */}
@@ -91,11 +90,11 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
             onClick={handleGuest}
             disabled={isBusy}
           >
-            {isGuestLoading ? '準備中…' : 'まずはゲストで始める'}
+            {isGuestLoading ? '準備中…' : 'まずはゲストで試してみる'}
           </button>
           <p className="welcome-guest-note">
-            ゲストは端末・ブラウザが変わるとデータは引き継げません<br />
-            あとからGoogleアカウントと連携できます
+            この端末だけで使えます。<br />
+            あとからGoogleアカウントと連携できます。
           </p>
         </div>
 

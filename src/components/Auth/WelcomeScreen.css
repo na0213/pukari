@@ -2,11 +2,49 @@
 .welcome-screen {
   position: fixed;
   inset: 0;
-  background: var(--sky-dawn);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.16) 0 10px, transparent 11px),
+    radial-gradient(circle at 74% 22%, rgba(255, 255, 255, 0.14) 0 14px, transparent 15px),
+    linear-gradient(180deg, #d9ecf8 0%, #eef6fb 48%, #d3e7f7 100%);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 0 32px;
+  padding: clamp(84px, 16vh, 132px) 32px 0;
+  overflow: hidden;
+}
+
+.welcome-screen::before,
+.welcome-screen::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.08) 58%, rgba(255, 255, 255, 0) 72%);
+  filter: blur(0.5px);
+  pointer-events: none;
+  animation: welcome-bubble-drift 12s ease-in-out infinite;
+}
+
+.welcome-screen::before {
+  width: 130px;
+  height: 130px;
+  top: 8vh;
+  left: 10vw;
+  opacity: 0.55;
+}
+
+.welcome-screen::after {
+  width: 88px;
+  height: 88px;
+  top: 18vh;
+  right: 12vw;
+  opacity: 0.38;
+  animation-duration: 15s;
+  animation-direction: reverse;
+}
+
+@keyframes welcome-bubble-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -12px, 0) scale(1.04); }
 }
 
 .welcome-content {
@@ -16,6 +54,8 @@
   max-width: 320px;
   width: 100%;
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── ロゴ ── */
@@ -23,7 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 18px;
 }
 
 .welcome-logo-image {
@@ -34,15 +74,15 @@
 .welcome-logo-text {
   font-size: 34px;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(58, 78, 105, 0.82);
   letter-spacing: 0.14em;
 }
 
 /* ── サブテキスト ── */
 .welcome-tagline {
-  margin: 0 0 36px;
+  margin: 0 0 28px;
   font-size: 13px;
-  color: rgba(55, 78, 108, 0.9);
+  color: rgba(61, 80, 104, 0.82);
   letter-spacing: 0.1em;
   font-style: italic;
 }
@@ -60,7 +100,7 @@
   width: 16px;
   height: 16px;
   flex: 0 0 16px;
-  color: rgba(80, 120, 160, 0.8);
+  color: rgba(88, 112, 140, 0.78);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -74,7 +114,7 @@
 .welcome-security-text {
   margin: 0;
   font-size: 13px;
-  color: rgba(80, 120, 160, 0.8);
+  color: rgba(82, 100, 124, 0.82);
   line-height: 1.65;
   text-align: left;
 }
@@ -87,15 +127,15 @@
   gap: 10px;
   width: 80%;
   padding: 13px 20px;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(120, 150, 180, 0.18);
   border-radius: 12px;
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 1px 3px rgba(0, 0, 0, 0.06);
+    0 10px 24px rgba(96, 129, 163, 0.12),
+    0 3px 8px rgba(96, 129, 163, 0.08);
   font-size: 15px;
   font-family: inherit;
-  color: rgba(40, 40, 40, 0.88);
+  color: rgba(54, 69, 92, 0.9);
   cursor: pointer;
   margin-bottom: 22px;
   transition: box-shadow 0.15s, transform 0.1s;
@@ -103,8 +143,8 @@
 }
 
 .welcome-google-btn:active:not(:disabled) {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  transform: scale(0.98);
+  box-shadow: 0 6px 16px rgba(96, 129, 163, 0.08);
+  transform: translateY(1px) scale(0.99);
 }
 
 .welcome-google-btn:disabled {
@@ -124,7 +164,7 @@
   background: none;
   border: none;
   font-size: 14px;
-  color: rgba(80, 120, 170, 0.75);
+  color: rgba(79, 103, 131, 0.82);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -145,6 +185,6 @@
 .welcome-guest-note {
   margin: 0;
   font-size: 12px;
-  color: rgba(65, 92, 124, 0.82);
+  color: rgba(89, 106, 129, 0.82);
   line-height: 1.7;
 }

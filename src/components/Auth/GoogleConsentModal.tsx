@@ -14,7 +14,7 @@ function GoogleGIcon() {
 }
 
 interface GoogleConsentModalProps {
-  /** 'signin': ウェルカム画面からのGoogle新規ログイン  link': ゲストからのアカウント連携 */
+  /** 'signin': ウェルカム画面からのGoogleログイン  link': ゲストからのアカウント連携 */
   mode: 'signin' | 'link';
   auth: UseAuthReturn;
   onClose: () => void;
@@ -39,28 +39,39 @@ export default function GoogleConsentModal({ mode, auth, onClose, onOpenPrivacy 
   return (
     <div className="gconsent-overlay" onClick={onClose} aria-modal="true" role="dialog" aria-label="Googleアカウント連携について">
       <div className="gconsent-modal" onClick={(e) => e.stopPropagation()}>
-        <h2 className="gconsent-title">Googleアカウント連携について</h2>
+        <h2 className="gconsent-title">
+          {mode === 'signin' ? 'Googleでログイン' : 'Googleアカウント連携について'}
+        </h2>
 
         <p className="gconsent-lead">
-          連携すると、以下の情報が<br />Pukariに保存されます:
-        </p>
-
-        <ul className="gconsent-list">
-          <li>メールアドレス</li>
-          <li>表示名</li>
-          <li>プロフィール画像</li>
-        </ul>
-
-        <p className="gconsent-note">
-          これらは認証とデータ同期のみに使用し、<br />
-          第三者への提供は行いません。
+          {mode === 'signin' ? (
+            <>
+              メールアドレスと名前を取得します<br />
+              （いつでも削除できます）
+            </>
+          ) : (
+            <>連携すると、以下の情報が<br />Pukariに保存されます:</>
+          )}
         </p>
 
         {mode === 'link' && (
-          <p className="gconsent-note">
-            連携後は、異なる端末やブラウザからも<br />
-            同じデータにアクセスできるようになります。
-          </p>
+          <>
+            <ul className="gconsent-list">
+              <li>メールアドレス</li>
+              <li>表示名</li>
+              <li>プロフィール画像</li>
+            </ul>
+
+            <p className="gconsent-note">
+              これらは認証とデータ同期のみに使用し、<br />
+              第三者への提供は行いません。
+            </p>
+
+            <p className="gconsent-note">
+              連携後は、異なる端末やブラウザからも<br />
+              同じデータにアクセスできるようになります。
+            </p>
+          </>
         )}
 
         <button
@@ -73,14 +84,14 @@ export default function GoogleConsentModal({ mode, auth, onClose, onOpenPrivacy 
 
         <div className="gconsent-actions">
           <button
-            className="gconsent-google-btn"
-            onClick={handleContinue}
-            disabled={isBusy}
-            type="button"
-          >
-            <GoogleGIcon />
-            {isBusy ? '接続中…' : 'Googleで続ける'}
-          </button>
+          className="gconsent-google-btn"
+          onClick={handleContinue}
+          disabled={isBusy}
+          type="button"
+        >
+          <GoogleGIcon />
+          {isBusy ? '接続中…' : 'Googleで続ける'}
+        </button>
           <button
             className="gconsent-cancel"
             onClick={onClose}
