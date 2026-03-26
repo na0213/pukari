@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import type { Bubble, BubbleStatus, BubbleLog } from '../types/bubble';
 import { FREE_BUBBLE_LIMIT } from '../lib/constants';
 import { supabase } from '../lib/supabase';
+import type { BubbleColorKey } from '../lib/bubbleColors';
+import { normalizeBubbleColor } from '../lib/bubbleColors';
 
 // ── 日付ユーティリティ ──
 
@@ -21,6 +23,7 @@ interface BubbleRow {
   user_id: string;
   text: string;
   memo: string | null;
+  color: string | null;
   status: string;
   size_factor: number;
   created_at: string;
@@ -48,6 +51,7 @@ function fromRow(row: BubbleRow): Bubble {
     id: row.id,
     text: row.text,
     memo: row.memo ?? undefined,
+    color: normalizeBubbleColor(row.color),
     status,
     sizeFactor: row.size_factor,
     createdAt: new Date(row.created_at),
@@ -72,6 +76,7 @@ function toRow(b: Bubble, userId: string): Omit<BubbleRow, 'updated_at'> {
     user_id: userId,
     text: b.text,
     memo: b.memo ?? null,
+    color: b.color ?? null,
     status: b.status,
     size_factor: b.sizeFactor,
     created_at: b.createdAt.toISOString(),
@@ -125,9 +130,11 @@ export interface UseBubblesReturn {
 
   addBubble: (text: string) => void;
   keepBubble: (id: string) => void;       // floating → nearby
+  unkeepBubble: (id: string) => void;     // nearby → floating
   markDone: (id: string) => void;         // できた！（completed に + done ログ）
   markDoneToday: (id: string) => void;    // 今日はここまで（done ログのみ、状態維持）
   updateMemo: (id: string, memo: string) => void;
+  updateColor: (id: string, color: BubbleColorKey | null) => void;
   removeBubble: (id: string) => void;
 
   logs: BubbleLog[];
@@ -241,6 +248,7 @@ export function useBubbles(): UseBubblesReturn {
     const newBubble: Bubble = {
       id: crypto.randomUUID(),
       text: text.trim(),
+      color: undefined,
       status: 'floating',
       sizeFactor: 0.8 + Math.random() * 0.4,
       createdAt: new Date(),
@@ -255,6 +263,18 @@ export function useBubbles(): UseBubblesReturn {
       prev.map((b) => {
         if (b.id !== id || b.status !== 'floating') return b;
         const updated: Bubble = { ...b, status: 'nearby' };
+        syncBubble(updated);
+        return updated;
+      })
+    );
+  };
+
+  // キープをやめる（nearby → floating）
+  const unkeepBubble = (id: string) => {
+    setBubbles((prev) =>
+      prev.map((b) => {
+        if (b.id !== id || b.status !== 'nearby') return b;
+        const updated: Bubble = { ...b, status: 'floating' };
         syncBubble(updated);
         return updated;
       })
@@ -286,6 +306,16 @@ export function useBubbles(): UseBubblesReturn {
         if (b.id !== id) return b;
         syncBubbleUpdate(id, { memo });
         return { ...b, memo };
+      })
+    );
+  };
+
+  const updateColor = (id: string, color: BubbleColorKey | null) => {
+    setBubbles((prev) =>
+      prev.map((b) => {
+        if (b.id !== id) return b;
+        syncBubbleUpdate(id, { color });
+        return { ...b, color: color ?? undefined };
       })
     );
   };
@@ -340,9 +370,11 @@ export function useBubbles(): UseBubblesReturn {
     completedBubbles,
     addBubble,
     keepBubble,
+    unkeepBubble,
     markDone,
     markDoneToday,
     updateMemo,
+    updateColor,
     removeBubble,
     logs,
     todayLogs,

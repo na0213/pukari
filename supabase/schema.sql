@@ -10,6 +10,7 @@ create table bubbles (
   user_id uuid references auth.users(id) on delete cascade,
   text text not null,
   memo text,
+  color text,
   status text not null default 'floating'
     check (status in ('floating', 'nearby', 'completed')),
   size_factor real not null default 1.0,

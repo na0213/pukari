@@ -86,6 +86,7 @@ export default function SoundPicker({ current, volume, onChange, onVolumeChange,
             onChange={(e) => onVolumeChange(Number(e.currentTarget.value))}
             aria-label="サウンド音量"
           />
+          <p className="picker-volume-note">スマホでは、本体の音量をオンにすると再生されます。</p>
         </div>
       </div>
     </>

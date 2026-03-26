@@ -46,12 +46,6 @@
   text-shadow: none;
 }
 
-.daily-sky-wrapper.sky-daily--dawn .day-panel-count,
-.daily-sky-wrapper.sky-daily--morning .day-panel-count {
-  color: rgba(35, 55, 84, 0.94);
-  text-shadow: none;
-}
-
 .daily-sky-wrapper.sky-daily--dawn .day-nav,
 .daily-sky-wrapper.sky-daily--morning .day-nav {
   background: rgba(255, 255, 255, 0.55);
@@ -60,15 +54,48 @@
 }
 
 .daily-sky-wrapper.sky-daily--dawn .day-panel-empty p,
-.daily-sky-wrapper.sky-daily--morning .day-panel-empty p {
+.daily-sky-wrapper.sky-daily--morning .day-panel-empty p,
+.daily-sky-wrapper.sky-daily--dawn .day-cylinder-empty p,
+.daily-sky-wrapper.sky-daily--morning .day-cylinder-empty p {
   color: rgba(45, 68, 100, 0.82);
   text-shadow: none;
 }
 
 .daily-sky-wrapper.sky-daily--dawn .day-bubble-text,
 .daily-sky-wrapper.sky-daily--morning .day-bubble-text {
-  color: rgba(32, 50, 82, 0.9);
-  text-shadow: none;
+  color: rgba(32, 50, 82, 0.88);
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.4);
+}
+
+/* 朝の空ではポップアップも明るいテーマ */
+.daily-sky-wrapper.sky-daily--dawn .day-popup,
+.daily-sky-wrapper.sky-daily--morning .day-popup {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(90, 130, 170, 0.2);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-popup-text,
+.daily-sky-wrapper.sky-daily--morning .day-popup-text {
+  color: rgba(35, 55, 84, 0.95);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-popup-memo,
+.daily-sky-wrapper.sky-daily--morning .day-popup-memo {
+  color: rgba(50, 70, 100, 0.78);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-popup-date,
+.daily-sky-wrapper.sky-daily--morning .day-popup-date {
+  color: rgba(60, 80, 110, 0.6);
+}
+
+.daily-sky-wrapper.sky-daily--dawn .day-popup-close,
+.daily-sky-wrapper.sky-daily--morning .day-popup-close {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: rgba(35, 55, 84, 0.88);
 }
 
 .daily-sky-wrapper.sky-daily--dawn .day-bubble-check,
@@ -194,7 +221,6 @@
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 6px;
 }
 
 /* 日付 */
@@ -204,16 +230,6 @@
   color: rgba(255, 255, 255, 0.9);
   letter-spacing: 0.06em;
   text-shadow: 0 1px 6px rgba(0, 30, 80, 0.25);
-  margin: 0;
-}
-
-/* できた数 */
-.day-panel-count {
-  font-size: 20px;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.95);
-  letter-spacing: 0.04em;
-  text-shadow: 0 1px 8px rgba(0, 30, 80, 0.2);
   margin: 0;
 }
 
@@ -269,7 +285,171 @@
   min-height: 100%;
 }
 
-/* ── シャボン玉 ── */
+/* ── 今日の空: ガラス瓶 ── */
+.day-cylinder-stage {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── ガラス瓶本体 ── */
+.day-jar {
+  position: relative;
+  width: min(72vw, 320px);
+  min-height: 320px;
+  border-radius: 12px 12px 48px 48px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.48);
+  border-top: 2px solid rgba(255, 255, 255, 0.55);
+  background:
+    rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 20px 40px rgba(255, 255, 255, 0.12),
+    inset 0 -20px 40px rgba(40, 70, 120, 0.12),
+    0 16px 48px rgba(20, 40, 70, 0.20),
+    0 4px 12px rgba(20, 40, 70, 0.10);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 瓶の口（上部の縁） */
+.day-jar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -2px;
+  right: -2px;
+  height: 14px;
+  border-radius: 12px 12px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.22));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.30);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.10);
+  z-index: 20;
+}
+
+/* 瓶の底面ハイライト */
+.day-jar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 40px;
+  border-radius: 0 0 40px 40px;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.18), transparent 70%);
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* バブル配置コンテナ（瓶の中） */
+.day-jar-bubbles {
+  position: absolute;
+  inset: 14px 0 0 0;
+  z-index: 12;
+}
+
+.day-jar-bubble-pos {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+/* ガラスの光沢（バブルの上に被せる） */
+.day-jar-glass {
+  position: absolute;
+  inset: 14px 0 0 0;
+  background:
+    linear-gradient(90deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      rgba(255, 255, 255, 0.04) 18%,
+      transparent 30%,
+      transparent 70%,
+      rgba(255, 255, 255, 0.04) 82%,
+      rgba(255, 255, 255, 0.14) 100%
+    );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 左側の縦ハイライトライン */
+.day-jar-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 14%;
+  width: 8%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.06) 80%);
+  filter: blur(2px);
+}
+
+/* 右側の微かなハイライト */
+.day-jar-glass::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 16%;
+  width: 5%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 60%);
+}
+
+/* 水面（瓶の底部） */
+.day-jar-liquid {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 0;
+  height: 16%;
+  max-height: 60px;
+  border-radius: 50% 50% 44px 44px / 14px 14px 44px 44px;
+  background:
+    linear-gradient(180deg,
+      rgba(80, 190, 210, 0.22),
+      rgba(50, 130, 170, 0.16) 50%,
+      rgba(30, 80, 130, 0.20)
+    ),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.28), transparent 65%);
+  box-shadow:
+    inset 0 8px 14px rgba(255, 255, 255, 0.12),
+    inset 0 -10px 18px rgba(10, 45, 95, 0.14);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.day-cylinder-stage--empty {
+  align-items: center;
+  min-height: 100%;
+}
+
+.day-cylinder-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px 44px;
+  z-index: 5;
+}
+
+.day-cylinder-empty p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 8px rgba(0, 30, 80, 0.20);
+}
+
+/* ── シャボン玉（縁だけカラフル、中身は透明ガラス風） ── */
 .day-bubble {
   border-radius: 50%;
   position: relative;
@@ -277,34 +457,42 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
 
-  /* メイン画面と同じ膜 */
-  background: radial-gradient(
-    circle at 35% 30%,
-    rgba(255, 255, 255, 0.55) 0%,
-    rgba(200, 235, 255, 0.25) 35%,
-    rgba(180, 210, 250, 0.15) 60%,
-    rgba(210, 190, 255, 0.2) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  background:
+    radial-gradient(circle at 35% 28%,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0.22) 16%,
+      rgba(255, 255, 255, 0.06) 40%,
+      rgba(255, 255, 255, 0.10) 100%
+    );
+  border: 2.5px solid var(--bubble-color-border, rgba(255, 255, 255, 0.55));
   box-shadow:
-    0 4px 16px rgba(100, 160, 220, 0.2),
-    0 0 8px 2px rgba(173, 216, 230, 0.25),
-    inset 0 0 10px rgba(255, 255, 255, 0.15);
+    0 4px 14px var(--bubble-color-shadow, rgba(100, 160, 220, 0.22)),
+    0 0 18px var(--bubble-color-glow, rgba(173, 216, 230, 0.25)),
+    inset 0 0 20px rgba(255, 255, 255, 0.10);
 
-  animation: float 3s ease-in-out var(--float-delay, 0s) infinite;
+  animation: none;
+  transition: transform 0.12s ease;
+}
+
+.day-bubble:active {
+  transform: scale(0.92);
 }
 
 /* 光の反射（左上） */
 .day-bubble::before {
   content: '';
   position: absolute;
-  top: 18%;
-  left: 22%;
-  width: 28%;
-  height: 18%;
+  top: 16%;
+  left: 20%;
+  width: 30%;
+  height: 20%;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   filter: blur(2px);
   pointer-events: none;
 }
@@ -327,15 +515,81 @@
   max-width: 85%;
 }
 
-/* ✓ マーク */
-.day-bubble-check {
-  position: absolute;
-  bottom: 14%;
-  right: 14%;
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.85);
-  z-index: 1;
-  line-height: 1;
+/* ── バブル詳細ポップアップ ── */
+.day-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day-popup {
+  position: relative;
+  z-index: 260;
+  width: min(300px, 82vw);
+  background: rgba(10, 20, 50, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  padding: 24px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.day-popup-text {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.day-popup-memo {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(200, 220, 255, 0.78);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.day-popup-date {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(180, 200, 230, 0.65);
+}
+
+.day-popup-close {
+  margin-top: 4px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.day-popup-close:active {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@keyframes day-orb-float {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -4px, 0) scale(1.02); }
 }
 
 /* ── アニメーション無効化 ── */
@@ -388,11 +642,11 @@
     font-size: 14px;
   }
 
-  .day-panel-count {
-    font-size: 17px;
-  }
-
   .daily-sky-footer {
     padding: 10px 16px 24px;
+  }
+
+  .day-jar {
+    width: min(80vw, 300px);
   }
 }

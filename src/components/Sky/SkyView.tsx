@@ -81,7 +81,9 @@ function usePositionMap() {
   const getPosition = (
     id: string,
     existing: { x: number; y: number }[],
-    range: { x: [number, number]; y: [number, number] }
+    range: { x: [number, number]; y: [number, number] },
+    bubble?: Bubble,
+    totalCount = 0
   ): { x: number; y: number } => {
     if (!mapRef.current.has(id)) {
       let pos = {
@@ -89,9 +91,12 @@ function usePositionMap() {
         y: range.y[0] + Math.random() * (range.y[1] - range.y[0]),
       };
       let attempts = 0;
+      const minDistance = bubble
+        ? getBubbleCollisionDistance(totalCount, bubble)
+        : 12;
       while (
-        attempts < 40 &&
-        existing.some((p) => Math.hypot(p.x - pos.x, p.y - pos.y) < 14)
+        attempts < 120 &&
+        existing.some((p) => Math.hypot(p.x - pos.x, p.y - pos.y) < minDistance)
       ) {
         pos = {
           x: range.x[0] + Math.random() * (range.x[1] - range.x[0]),
@@ -109,6 +114,18 @@ function usePositionMap() {
 
 // ── 位置レンジ定数 ──
 const ACTIVE_RANGE = { x: [5, 88] as [number, number], y: [5, 62] as [number, number] };
+
+function getBubbleCollisionDistance(totalCount: number, bubble: Bubble): number {
+  const countBase = totalCount > 80 ? 8 : totalCount > 40 ? 9 : totalCount > 20 ? 10 : 12;
+  const sizeBonus = bubble.sizeFactor > 1.08 ? 1 : 0;
+  const nearbyBonus = bubble.status === 'nearby' ? 1.5 : 0;
+  return countBase + sizeBonus + nearbyBonus;
+}
+
+function getBubbleLayoutScore(bubble: Bubble): number {
+  const statusScore = bubble.status === 'nearby' ? 2 : 1;
+  return statusScore * 10 + bubble.sizeFactor;
+}
 
 // ── exit アニメーション ──
 const EXIT_COMPLETED: TargetAndTransition = {
@@ -136,9 +153,11 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
     canAdd,
     addBubble,
     keepBubble,
+    unkeepBubble,
     markDone,
     markDoneToday,
     updateMemo,
+    updateColor,
     removeBubble,
     logs,
     isBubbleDoneToday,
@@ -154,6 +173,7 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
   const [showLagoonEntry, setShowLagoonEntry] = useState(false);
   const [selectedBubbleId, setSelectedBubbleId] = useState<string | null>(null);
   const [highlightedBubbleId, setHighlightedBubbleId] = useState<string | null>(null);
+  const [focusedBubbleId, setFocusedBubbleId] = useState<string | null>(null);
   const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // exit アニメーション中の泡
@@ -186,7 +206,10 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
 
   // ── 操作ハンドラ ──
 
-  const handleTap = (id: string) => setSelectedBubbleId(id);
+  const handleTap = (id: string) => {
+    setFocusedBubbleId(null);
+    setSelectedBubbleId(id);
+  };
   const handleKeep = (id: string) => keepBubble(id);
 
   const handleMarkDone = (id: string) => {
@@ -229,17 +252,17 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
   };
 
   const handleHome = () => {
+    setFocusedBubbleId(null);
     skyRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
   };
 
   // ── 検索：選択された泡に自動スクロール＋ハイライト ──
   const handleSelectBubble = (id: string) => {
     setShowSearch(false);
+    setFocusedBubbleId(id);
     const container = skyRef.current;
-    const pos = positionMap.current.get(id);
-    if (container && pos) {
-      const scrollTarget =
-        (pos.x / 100) * container.scrollWidth - container.clientWidth / 2;
+    if (container) {
+      const scrollTarget = container.scrollWidth / 2 - container.clientWidth / 2;
       container.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
     }
     if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
@@ -277,11 +300,25 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
     ...exitingBubbles.filter((b) => !activeIds.has(b.id)),
   ];
 
+  const layoutBubbles = [...displayBubbles].sort((a, b) => {
+    const scoreDiff = getBubbleLayoutScore(b) - getBubbleLayoutScore(a);
+    if (scoreDiff !== 0) return scoreDiff;
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
+
   const activePositions: { x: number; y: number }[] = [];
-  const positionedBubbles = displayBubbles.map((bubble) => {
-    const pos = getPosition(bubble.id, activePositions, ACTIVE_RANGE);
+  const positionedMap = new Map<string, { bubble: Bubble; pos: { x: number; y: number } }>();
+  layoutBubbles.forEach((bubble) => {
+    const pos = focusedBubbleId === bubble.id
+      ? { x: 50, y: 42 }
+      : getPosition(bubble.id, activePositions, ACTIVE_RANGE, bubble, displayBubbles.length);
     activePositions.push(pos);
-    return { bubble, pos };
+    positionedMap.set(bubble.id, { bubble, pos });
+  });
+
+  const positionedBubbles = displayBubbles.map((bubble) => positionedMap.get(bubble.id) ?? {
+    bubble,
+    pos: { x: 50, y: 42 },
   });
 
   const skyCanvasWidth = getSkyCanvasWidth(activeBubbles.length);
@@ -346,6 +383,7 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
                   onTap={handleTap}
                   exitAnimation={exiting?.exitAnimation}
                   isHighlighted={highlightedBubbleId === bubble.id}
+                  isFocused={focusedBubbleId === bubble.id}
                 />
               );
             })}
@@ -398,9 +436,11 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
             isDoneToday={isBubbleDoneToday(selectedBubble.id)}
             onClose={() => setSelectedBubbleId(null)}
             onKeep={handleKeep}
+            onUnkeep={unkeepBubble}
             onMarkDone={handleMarkDone}
             onMarkDoneToday={handleMarkDoneToday}
             onUpdateMemo={updateMemo}
+            onUpdateColor={updateColor}
             onRemove={removeBubble}
           />
         )}

@@ -10,6 +10,16 @@ function toJSTDate(date: Date): string {
   }).format(date);
 }
 
+function getTodayJSTDate(): Date {
+  const todayStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+  return new Date(`${todayStr}T12:00:00+09:00`);
+}
+
 function getSkyPhase(doneCount: number): SkyPhase {
   if (doneCount === 0) return 'dawn';
   if (doneCount <= 2) return 'morning';
@@ -42,9 +52,10 @@ export function useDailySky(
 ): UseDailySkyReturn {
   const bubbleMap = new Map(bubbles.map((b) => [b.id, b]));
 
+  const todayJST = getTodayJSTDate();
   const dayStrings = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
+    const d = new Date(todayJST);
+    d.setUTCDate(d.getUTCDate() - i);
     return toJSTDate(d);
   });
 

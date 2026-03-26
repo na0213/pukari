@@ -154,6 +154,13 @@
   cursor: pointer;
 }
 
+.picker-volume-note {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(200, 230, 255, 0.55);
+}
+
 .picker-close {
   width: 30px;
   height: 30px;

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { TargetAndTransition } from 'framer-motion';
 import type { Bubble } from '../../types/bubble';
+import { getBubbleColorStyle } from '../../lib/bubbleColors';
 import './BubbleItem.css';
 
 // ── サイズ計算 ──
@@ -46,6 +47,7 @@ interface BubbleItemProps {
   onTap: (id: string) => void;
   exitAnimation?: TargetAndTransition;
   isHighlighted?: boolean;        // 検索で選択された直後の一時ハイライト
+  isFocused?: boolean;            // 検索で中央に寄せた泡
 }
 
 export default function BubbleItem({
@@ -55,6 +57,7 @@ export default function BubbleItem({
   onTap,
   exitAnimation,
   isHighlighted = false,
+  isFocused = false,
 }: BubbleItemProps) {
   const floatDuration = useMemo(
     () => 3 + seededRandom(`${bubble.id}:duration`) * 3,
@@ -76,12 +79,15 @@ export default function BubbleItem({
     top: `${position.y}%`,
     width: `${size}px`,
     height: `${size}px`,
+    ...(bubble.color ? getBubbleColorStyle(bubble.color) : {}),
   } as React.CSSProperties;
 
   const className = [
     'bubble-item',
     `bubble-item--${bubble.status}`,
+    bubble.color ? 'bubble-item--colored' : '',
     isHighlighted ? 'bubble-item--highlighted' : '',
+    isFocused ? 'bubble-item--focused' : '',
   ]
     .filter(Boolean)
     .join(' ');

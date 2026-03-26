@@ -1,6 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { Bubble } from '../../types/bubble';
+import type { BubbleColorKey } from '../../lib/bubbleColors';
+import {
+  BUBBLE_COLOR_OPTIONS,
+  getBubbleColorOption,
+  normalizeBubbleColor,
+} from '../../lib/bubbleColors';
 import './BubbleDetail.css';
 
 interface BubbleDetailProps {
@@ -8,9 +14,11 @@ interface BubbleDetailProps {
   isDoneToday: boolean;
   onClose: () => void;
   onKeep: (id: string) => void;
+  onUnkeep: (id: string) => void;
   onMarkDone: (id: string) => void;
   onMarkDoneToday: (id: string) => void;
   onUpdateMemo: (id: string, memo: string) => void;
+  onUpdateColor: (id: string, color: BubbleColorKey | null) => void;
   onRemove?: (id: string) => void;
 }
 
@@ -19,13 +27,24 @@ export default function BubbleDetail({
   isDoneToday,
   onClose,
   onKeep,
+  onUnkeep,
   onMarkDone,
   onMarkDoneToday,
   onUpdateMemo,
+  onUpdateColor,
   onRemove,
 }: BubbleDetailProps) {
   const [memo, setMemo] = useState(bubble.memo ?? '');
+  const [selectedColor, setSelectedColor] = useState<BubbleColorKey | null>(
+    bubble.color ?? null
+  );
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    setMemo(bubble.memo ?? '');
+    setSelectedColor(normalizeBubbleColor(bubble.color) ?? null);
+    setConfirmDelete(false);
+  }, [bubble.id, bubble.memo, bubble.color]);
 
   const handleMemoBlur = () => {
     if (memo !== (bubble.memo ?? '')) {
@@ -42,6 +61,7 @@ export default function BubbleDetail({
 
   const showMainButtons = bubble.status !== 'completed';
   const showKeep = bubble.status === 'floating';
+  const showUnkeep = bubble.status === 'nearby';
 
   return (
     <motion.div
@@ -87,6 +107,56 @@ export default function BubbleDetail({
           maxLength={500}
         />
 
+        {/* カラー選択 */}
+        <div className="bubble-detail-color-section" aria-label="シャボン玉のカラー選択">
+          <p className="bubble-detail-section-label">カラー</p>
+          <div className="bubble-detail-colors" role="radiogroup" aria-label="シャボン玉のカラー">
+            <button
+              type="button"
+              className={[
+                'bubble-detail-color',
+                'bubble-detail-color--none',
+                selectedColor === null ? 'bubble-detail-color--active' : '',
+              ].join(' ')}
+              onClick={() => {
+                setSelectedColor(null);
+                onUpdateColor(bubble.id, null);
+              }}
+              role="radio"
+              aria-checked={selectedColor === null}
+              aria-label="なし"
+            >
+              なし
+            </button>
+            {BUBBLE_COLOR_OPTIONS.map((option) => {
+              const active = selectedColor === option.key;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  className={[
+                    'bubble-detail-color',
+                    active ? 'bubble-detail-color--active' : '',
+                  ].join(' ')}
+                  style={{ background: option.swatch }}
+                  onClick={() => {
+                    setSelectedColor(option.key);
+                    onUpdateColor(bubble.id, option.key);
+                  }}
+                  role="radio"
+                  aria-checked={active}
+                  aria-label={option.label}
+                >
+                  <span className="bubble-detail-color-dot" aria-hidden="true" />
+                </button>
+              );
+            })}
+          </div>
+          <p className="bubble-detail-color-name">
+            {selectedColor ? getBubbleColorOption(selectedColor).label : 'なし'}
+          </p>
+        </div>
+
         {/* 作成日 */}
         <p className="bubble-detail-date">{createdLabel} に浮かんだ</p>
 
@@ -100,6 +170,15 @@ export default function BubbleDetail({
                 onClick={() => { onKeep(bubble.id); onClose(); }}
               >
                 ◎ キープする
+              </button>
+            )}
+
+            {showUnkeep && (
+              <button
+                className="bubble-detail-btn bubble-detail-btn--unkeep"
+                onClick={() => { onUnkeep(bubble.id); onClose(); }}
+              >
+                キープをやめる
               </button>
             )}
 

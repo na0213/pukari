@@ -115,15 +115,7 @@ export default function Header({ onOpenAbout, onOpenGuest, onOpenPwa, onOpenPriv
   return (
     <>
       <header className="sky-header" role="banner">
-        <span className="sky-header-title">
-          <img
-            src="/images/logo.png"
-            alt="Pukari"
-            className="header-logo-image"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-          />
-          <span className="header-logo-text">Pukari</span>
-        </span>
+        <span aria-hidden="true" />
         <button
           className="sky-header-menu-btn"
           onClick={() => setShowMenu(true)}

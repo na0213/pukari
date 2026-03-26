@@ -25,6 +25,85 @@ function LockIcon() {
   );
 }
 
+function SparkIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3l1.9 5.7L19.6 11l-5.7 1.9L12 18.6l-1.9-5.7L4.4 11l5.7-2.3L12 3z" />
+    </svg>
+  );
+}
+
+const FEATURE_ITEMS = [
+  {
+    title: '思いつきを浮かべる',
+    text: 'アイデアもタスクも、まずは泡に。',
+  },
+  {
+    title: 'メモを追加する',
+    text: '泡の中に、あとで見返すメモを残せます。',
+  },
+  {
+    title: '3つの状態でゆるく整理',
+    text: 'キープ / 今日はここまで / できた！ で進み具合がわかります。',
+  },
+  {
+    title: '空の色が少しずつ変わる',
+    text: '今日の積み重ねで、背景の空も表情を変えます。',
+  },
+  {
+    title: 'みんなともくもくタイムへ',
+    text: '一緒にもくもく作業する集中モード。意気込みを入れても、空欄のままでもOKです。',
+  },
+  {
+    title: 'サウンドも選べる',
+    text: '気分に合わせて、音と空気感を切り替えられます。',
+  },
+];
+
+interface WelcomeActionsProps {
+  isBusy: boolean;
+  isGuestLoading: boolean;
+  onOpenGoogle: () => void;
+  onGuest: () => void;
+  className?: string;
+}
+
+function WelcomeActions({
+  isBusy,
+  isGuestLoading,
+  onOpenGoogle,
+  onGuest,
+  className = '',
+}: WelcomeActionsProps) {
+  return (
+    <div className={`welcome-actions ${className}`.trim()}>
+      <button
+        className="welcome-google-btn"
+        onClick={onOpenGoogle}
+        disabled={isBusy}
+        aria-label="Googleでログインする"
+      >
+        <GoogleIcon />
+        Googleログイン
+      </button>
+
+      <div className="welcome-guest-area">
+        <button
+          className="welcome-guest-btn"
+          onClick={onGuest}
+          disabled={isBusy}
+        >
+          {isGuestLoading ? '準備中…' : 'まずはゲストで試してみる'}
+        </button>
+        <p className="welcome-guest-note">
+          この端末だけで使えます。<br />
+          あとからGoogleアカウントと連携できます。
+        </p>
+      </div>
+    </div>
+  );
+}
+
 interface WelcomeScreenProps {
   auth: UseAuthReturn;
   onOpenPrivacy: () => void;
@@ -46,57 +125,133 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
   return (
     <div className="welcome-screen">
       <div className="welcome-content">
+        <section className="welcome-hero">
+          <div className="welcome-hero-copy">
+            <div className="welcome-logo">
+              {logoError ? (
+                <span className="welcome-logo-text">Pukari</span>
+              ) : (
+                <img
+                  src="/images/logo.png"
+                  alt="Pukari"
+                  className="welcome-logo-image"
+                  onError={() => setLogoError(true)}
+                />
+              )}
+            </div>
 
-        {/* ロゴ */}
-        <div className="welcome-logo">
-          {logoError ? (
-            <span className="welcome-logo-text">Pukari</span>
-          ) : (
-            <img
-              src="/images/logo.png"
-              alt="Pukari"
-              className="welcome-logo-image"
-              onError={() => setLogoError(true)}
+            <p className="welcome-tagline">がんばらなくても使える、ゆるい整理アプリ</p>
+            <h1 className="welcome-title">思いつきを泡にして、やさしく整理。</h1>
+            <p className="welcome-lead">
+              アイデアもタスクも、まずは気軽に泡にして浮かべるだけ。
+              あとからメモを足したり、ゆるく見返せます。
+            </p>
+
+            <div className="welcome-hero-stats" aria-label="できること">
+              <span>思いつきを泡に</span>
+              <span>泡にメモを追加</span>
+              <span>集中タイムに参加</span>
+            </div>
+
+            <WelcomeActions
+              isBusy={isBusy}
+              isGuestLoading={isGuestLoading}
+              onOpenGoogle={() => setShowGoogleConsent(true)}
+              onGuest={handleGuest}
+              className="welcome-actions--hero"
             />
-          )}
-        </div>
+          </div>
 
-        {/* サブテキスト */}
-        <p className="welcome-tagline">思いつきを泡にして、あとでゆるく振り返る。</p>
+          <div className="welcome-hero-visual" aria-label="Pukariの画面イメージ">
+            <article className="welcome-preview welcome-preview--home">
+              <div className="welcome-preview-top">
+                <span className="welcome-preview-kicker">TOP</span>
+                <span className="welcome-preview-tag">泡に浮かべる</span>
+              </div>
+              <div className="welcome-preview-bubbles">
+                <span className="welcome-preview-bubble welcome-preview-bubble--lg">アプリ作る</span>
+                <span className="welcome-preview-bubble welcome-preview-bubble--md">プレゼン</span>
+                <span className="welcome-preview-bubble welcome-preview-bubble--sm">筋トレ</span>
+              </div>
+              <p className="welcome-preview-copy">
+                思いついたことを、そのまま空に浮かべます。
+              </p>
+            </article>
 
-        {/* セキュリティメッセージ */}
-        <div className="welcome-security">
-          <span className="welcome-security-icon" aria-hidden="true"><LockIcon /></span>
-          <p className="welcome-security-text">
-            データは安全なクラウドに保存されます
-          </p>
-        </div>
+            <article className="welcome-preview welcome-preview--detail">
+              <div className="welcome-preview-top">
+                <span className="welcome-preview-kicker">MEMO</span>
+                <span className="welcome-preview-tag">泡にメモ</span>
+              </div>
+              <div className="welcome-preview-sheet">
+                <p className="welcome-preview-title">【目標】アプリつくる</p>
+                <div className="welcome-preview-note">
+                  <span>・筋トレアプリ</span>
+                  <span>・家計簿アプリ</span>
+                </div>
+                <div className="welcome-preview-statuses">
+                  <span>◎ キープ</span>
+                  <span>今日はここまで</span>
+                  <span>できた！</span>
+                </div>
+              </div>
+              <p className="welcome-preview-copy">
+                メモを足して、キープや完了の状態も残せます。
+              </p>
+            </article>
 
-        {/* Googleボタン */}
-        <button
-          className="welcome-google-btn"
-          onClick={() => setShowGoogleConsent(true)}
-          disabled={isBusy}
-          aria-label="Googleでログインする"
-        >
-          <GoogleIcon />
-          Googleログイン
-        </button>
+            <article className="welcome-preview welcome-preview--lagoon">
+              <div className="welcome-preview-top">
+                <span className="welcome-preview-kicker">LAGOON</span>
+                <span className="welcome-preview-tag">集中する</span>
+              </div>
+              <div className="welcome-preview-lagoon">
+                <span className="welcome-preview-star" />
+                <span className="welcome-preview-star welcome-preview-star--dim" />
+                <span className="welcome-preview-lagoon-bubble">やるぞ</span>
+              </div>
+              <p className="welcome-preview-copy">
+                もくもく中の人の泡が浮かび、音や空気感も切り替えられます。
+              </p>
+            </article>
+          </div>
+        </section>
 
-        {/* ゲストリンク */}
-        <div className="welcome-guest-area">
-          <button
-            className="welcome-guest-btn"
-            onClick={handleGuest}
-            disabled={isBusy}
-          >
-            {isGuestLoading ? '準備中…' : 'まずはゲストで試してみる'}
-          </button>
-          <p className="welcome-guest-note">
-            この端末だけで使えます。<br />
-            あとからGoogleアカウントと連携できます。
-          </p>
-        </div>
+        <section className="welcome-story">
+          <div className="welcome-story-head">
+            <span className="welcome-story-kicker">できること</span>
+            <h2 className="welcome-story-title">Pukariで、こんなふうに使えます。</h2>
+          </div>
+
+          <ul className="welcome-feature-list">
+            {FEATURE_ITEMS.map((item) => (
+              <li key={item.title} className="welcome-feature-item">
+                <span className="welcome-feature-icon" aria-hidden="true"><SparkIcon /></span>
+                <div className="welcome-feature-body">
+                  <p className="welcome-feature-title">{item.title}</p>
+                  <p className="welcome-feature-text">{item.text}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="welcome-story-bottom">
+            <div className="welcome-security">
+              <span className="welcome-security-icon" aria-hidden="true"><LockIcon /></span>
+              <p className="welcome-security-text">
+                データは安全なクラウドに保存されます
+              </p>
+            </div>
+
+            <WelcomeActions
+              isBusy={isBusy}
+              isGuestLoading={isGuestLoading}
+              onOpenGoogle={() => setShowGoogleConsent(true)}
+              onGuest={handleGuest}
+              className="welcome-actions--footer"
+            />
+          </div>
+        </section>
 
       </div>
 
