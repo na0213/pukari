@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import type { User } from '@supabase/supabase-js';
+import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
 const AUTH_TIMEOUT_MS = 5000;
@@ -46,6 +46,21 @@ export function useAuth(): UseAuthReturn {
   const [isLoading, setIsLoading] = useState(supabase !== null);
   const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
 
+  const syncAuthUser = useCallback(async (session: Session | null) => {
+    if (!supabase) return null;
+
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (!error && data.user) {
+        return data.user;
+      }
+    } catch (err) {
+      console.warn('supabase.auth.getUser failed:', err);
+    }
+
+    return session?.user ?? null;
+  }, []);
+
   const loadProfileDisplayName = useCallback(async (userId: string | null) => {
     if (!supabase || !userId) {
       setProfileDisplayName(null);
@@ -75,9 +90,11 @@ export function useAuth(): UseAuthReturn {
 
     // 認証状態の変化を監視
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      const newUser = session?.user ?? null;
-      setUser(newUser);
-      void loadProfileDisplayName(newUser?.id ?? null);
+      void (async () => {
+        const newUser = await syncAuthUser(session);
+        setUser(newUser);
+        void loadProfileDisplayName(newUser?.id ?? null);
+      })();
     });
 
     // 既存セッションを確認（自動匿名ログインはしない）
@@ -93,8 +110,10 @@ export function useAuth(): UseAuthReturn {
       try {
         const { data: { session } } = await supabase!.auth.getSession();
         if (cancelled) return;
-        setUser(session?.user ?? null);
-        await loadProfileDisplayName(session?.user.id ?? null);
+        const currentUser = await syncAuthUser(session);
+        if (cancelled) return;
+        setUser(currentUser);
+        await loadProfileDisplayName(currentUser?.id ?? null);
       } catch (err) {
         console.warn('Supabase auth failed:', err);
       } finally {
@@ -108,7 +127,7 @@ export function useAuth(): UseAuthReturn {
       clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [loadProfileDisplayName]);
+  }, [loadProfileDisplayName, syncAuthUser]);
 
   const isAnonymous = user?.is_anonymous ?? true; // supabase未接続時もゲスト扱い
 

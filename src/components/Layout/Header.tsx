@@ -322,10 +322,6 @@ export default function Header({ onOpenAbout, onOpenGuest, onOpenPwa, onOpenPriv
                     </li>
                   ) : (
                     <li className="sky-side-menu-logout-confirm">
-                      <p className="sky-side-menu-logout-text">
-                        ログアウトしますか？<br />
-                        再ログインでデータを復元できます。
-                      </p>
                       <div className="sky-side-menu-logout-btns">
                         <button
                           className="sky-side-menu-logout-ok"

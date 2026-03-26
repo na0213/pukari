@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createAuthCookieStorage, getSupabaseAuthStorageKey, migrateAuthSessionFromLocalStorage } from './authCookieStorage';
 
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) ?? '';
 const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) ?? '';
@@ -14,10 +15,23 @@ function isValidHttpsUrl(url: string): boolean {
   }
 }
 
-// supabase が null のときはlocalStorageモードで動作
+const authStorageKey = getSupabaseAuthStorageKey(supabaseUrl);
+
+if (authStorageKey) {
+  migrateAuthSessionFromLocalStorage(authStorageKey);
+}
+
+// supabase が null のときはオフラインモードで動作
 export const supabase: SupabaseClient | null =
   isValidHttpsUrl(supabaseUrl) && Boolean(supabaseAnonKey)
-    ? createClient(supabaseUrl, supabaseAnonKey)
+    ? createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          storage: createAuthCookieStorage(),
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+        },
+      })
     : null;
 
 export const isSupabaseEnabled = supabase !== null;
