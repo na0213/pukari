@@ -34,7 +34,7 @@ export default function LagoonEntryModal({ onEnter, onClose }: LagoonEntryModalP
         className="entry-modal"
         role="dialog"
         aria-modal="true"
-        aria-label="みんなともくもく集中タイムへ"
+        aria-label="集中できそうなときはここへ"
       >
         <button
           className="entry-close"
@@ -44,14 +44,14 @@ export default function LagoonEntryModal({ onEnter, onClose }: LagoonEntryModalP
           ×
         </button>
 
-        <h2 className="entry-title">みんなともくもく集中タイム</h2>
-        <p className="entry-sub">意気込みをひとこと</p>
+        <h2 className="entry-title">集中できそうなときはここへ</h2>
+        <p className="entry-sub">他に集中している人がいるかも・・・</p>
 
         <input
           ref={inputRef}
           className="entry-input"
           type="text"
-          placeholder="今日は何をがんばる？"
+          placeholder="ひとこと"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           maxLength={40}

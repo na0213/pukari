@@ -12,6 +12,7 @@ export interface Bubble {
   text: string;           // 1行のつぶやき
   memo?: string;          // 補足メモ（任意）
   color?: BubbleColorKey; // シャボン玉の色
+  repeat?: boolean;       // 繰り返す（できた後も残す）
   status: BubbleStatus;
   sizeFactor: number;     // ランダムサイズ係数（0.8〜1.2）作成時に決定
   createdAt: Date;

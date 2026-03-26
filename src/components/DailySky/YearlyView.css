@@ -70,9 +70,9 @@
   position: sticky;
   left: 0;
   z-index: 3; /* 縦横両方のスティッキー */
-  width: 100px;
-  min-width: 100px;
-  max-width: 100px;
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
 }
 
 /* 月名ヘッダー */
@@ -107,31 +107,14 @@
   z-index: 1;
   padding-right: 0;
   padding-left: 14px;
-  width: 100px;
-  min-width: 100px;
-  max-width: 100px;
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
   overflow: hidden;
 }
 
-/* スワイプ用インナーコンテナ */
-.ym-name-cell-inner {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  gap: 8px;
-  transform: translateX(0);
-  transition: transform 0.2s ease;
-}
-
-.ym-name-cell-inner--swiped {
-  transform: translateX(-58px);
-}
-
-/* 泡テキストを押すための透明ボタン */
 .ym-bubble-text-button {
-  flex: 1 1 auto;
-  min-width: 0;
+  width: 100%;
   display: block;
   padding: 0;
   margin: 0;
@@ -156,28 +139,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 86px;
+  max-width: 160px;
   line-height: 1.4;
-}
-
-/* テキストを押したときに出る削除ボタン */
-.ym-delete-reveal-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 48px;
-  height: 24px;
-  padding: 0;
-  background: rgba(239, 83, 80, 0.12);
-  color: #d65f5f;
-  border: 1px solid rgba(239, 83, 80, 0.18);
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  box-shadow: 0 1px 3px rgba(239, 83, 80, 0.08);
 }
 
 /* ドットセル */
@@ -202,55 +165,40 @@
   box-shadow: 0 0 6px 2px #4fc3f755;
 }
 
-/* ── 削除確認ダイアログ ── */
-.ym-confirm-overlay {
+.ym-detail-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(10, 30, 60, 0.3);
+  background: rgba(10, 20, 40, 0.32);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
+  padding: 20px;
 }
 
-.ym-confirm-card {
+.ym-detail-card {
   background: #fff;
   border-radius: 16px;
   padding: 20px 20px 16px;
-  width: min(300px, 88vw);
+  width: min(360px, 92vw);
   box-shadow: 0 8px 32px rgba(0, 40, 100, 0.15);
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.ym-confirm-text {
-  font-size: 13px;
-  color: #444;
-  line-height: 1.6;
+.ym-detail-text {
   margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  word-break: break-word;
 }
 
-.ym-confirm-btns {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.ym-confirm-cancel {
-  font-size: 13px;
-  color: #888;
-  background: rgba(0, 0, 0, 0.05);
-  border: none;
-  cursor: pointer;
-  padding: 7px 16px;
-  border-radius: 10px;
-  font-family: inherit;
-}
-
-.ym-confirm-ok {
+.ym-detail-delete {
+  align-self: flex-end;
   font-size: 13px;
   color: #fff;
   background: #ef5350;

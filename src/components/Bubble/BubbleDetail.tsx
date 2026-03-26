@@ -13,12 +13,12 @@ interface BubbleDetailProps {
   bubble: Bubble;
   isDoneToday: boolean;
   onClose: () => void;
-  onKeep: (id: string) => void;
   onUnkeep: (id: string) => void;
   onMarkDone: (id: string) => void;
   onMarkDoneToday: (id: string) => void;
   onUpdateMemo: (id: string, memo: string) => void;
   onUpdateColor: (id: string, color: BubbleColorKey | null) => void;
+  onUpdateRepeat: (id: string, repeat: boolean) => void;
   onRemove?: (id: string) => void;
 }
 
@@ -26,25 +26,27 @@ export default function BubbleDetail({
   bubble,
   isDoneToday,
   onClose,
-  onKeep,
   onUnkeep,
   onMarkDone,
   onMarkDoneToday,
   onUpdateMemo,
   onUpdateColor,
+  onUpdateRepeat,
   onRemove,
 }: BubbleDetailProps) {
   const [memo, setMemo] = useState(bubble.memo ?? '');
   const [selectedColor, setSelectedColor] = useState<BubbleColorKey | null>(
     bubble.color ?? null
   );
+  const [repeatEnabled, setRepeatEnabled] = useState(bubble.repeat ?? false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     setMemo(bubble.memo ?? '');
     setSelectedColor(normalizeBubbleColor(bubble.color) ?? null);
+    setRepeatEnabled(bubble.repeat ?? false);
     setConfirmDelete(false);
-  }, [bubble.id, bubble.memo, bubble.color]);
+  }, [bubble.id, bubble.memo, bubble.color, bubble.repeat]);
 
   const handleMemoBlur = () => {
     if (memo !== (bubble.memo ?? '')) {
@@ -60,7 +62,6 @@ export default function BubbleDetail({
   });
 
   const showMainButtons = bubble.status !== 'completed';
-  const showKeep = bubble.status === 'floating';
   const showUnkeep = bubble.status === 'nearby';
 
   return (
@@ -162,16 +163,32 @@ export default function BubbleDetail({
 
         {/* アクション */}
         {showMainButtons && (
-          <div className="bubble-detail-actions">
-            {/* キープ（floating のみ） */}
-            {showKeep && (
-              <button
-                className="bubble-detail-btn bubble-detail-btn--keep"
-                onClick={() => { onKeep(bubble.id); onClose(); }}
-              >
-                ◎ キープする
-              </button>
-            )}
+        <div className="bubble-detail-actions">
+          <button
+            type="button"
+            className={[
+              'bubble-detail-toggle',
+              repeatEnabled ? 'bubble-detail-toggle--active' : '',
+            ].join(' ')}
+            onClick={() => {
+              const next = !repeatEnabled;
+              setRepeatEnabled(next);
+              onUpdateRepeat(bubble.id, next);
+            }}
+            aria-pressed={repeatEnabled}
+            aria-label="繰り返す"
+          >
+            <span className="bubble-detail-toggle-icon" aria-hidden="true">
+              ↻
+            </span>
+            繰り返す
+          </button>
+
+          {repeatEnabled && (
+            <p className="bubble-detail-repeat-note">
+              できた後も泡を残します
+            </p>
+          )}
 
             {showUnkeep && (
               <button
@@ -182,27 +199,22 @@ export default function BubbleDetail({
               </button>
             )}
 
-            {/* 「今日はここまで」と「できた！」を横並び */}
-            <div className="bubble-detail-main-row">
-              <button
-                className={[
-                  'bubble-detail-btn--today',
-                  isDoneToday ? 'bubble-detail-btn--today-done' : '',
-                ].join(' ')}
-                onClick={isDoneToday ? undefined : () => onMarkDoneToday(bubble.id)}
-                disabled={isDoneToday}
-                aria-disabled={isDoneToday}
-              >
-                {isDoneToday ? '✓ 今日は記録済み' : '今日はここまで'}
-              </button>
-
-              <button
-                className="bubble-detail-btn bubble-detail-btn--done"
-                onClick={() => { onMarkDone(bubble.id); onClose(); }}
-              >
-                できた！
-              </button>
-            </div>
+          <button
+            className="bubble-detail-btn bubble-detail-btn--done"
+            onClick={() => {
+              if (repeatEnabled) {
+                onMarkDoneToday(bubble.id);
+                onClose();
+                return;
+              }
+              onMarkDone(bubble.id);
+              onClose();
+            }}
+            disabled={isDoneToday}
+            aria-disabled={isDoneToday}
+          >
+            {isDoneToday ? '✓ 今日は記録済み' : 'できた！'}
+          </button>
           </div>
         )}
 

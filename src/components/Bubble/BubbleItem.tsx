@@ -33,9 +33,9 @@ function getBubbleSize(totalCount: number, bubble: Bubble): number {
 function getDisplayText(text: string, size: number): string | null {
   if (size < 35) return null;
   if (size < 60) {
-    return text.length > 3 ? text.slice(0, 3) + '…' : text;
+    return text.length > 5 ? text.slice(0, 5) + '…' : text;
   }
-  return text.length > 6 ? text.slice(0, 6) + '…' : text;
+  return text.length > 9 ? text.slice(0, 9) + '…' : text;
 }
 
 // ── Props ──
@@ -86,6 +86,7 @@ export default function BubbleItem({
     'bubble-item',
     `bubble-item--${bubble.status}`,
     bubble.color ? 'bubble-item--colored' : '',
+    bubble.repeat ? 'bubble-item--repeat' : '',
     isHighlighted ? 'bubble-item--highlighted' : '',
     isFocused ? 'bubble-item--focused' : '',
   ]
@@ -122,6 +123,44 @@ export default function BubbleItem({
       {displayText !== null && (
         <span className="bubble-text" style={{ fontSize: `${fontSize}px` }}>
           {displayText}
+        </span>
+      )}
+      {bubble.repeat && (
+        <span className="bubble-repeat-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" className="bubble-repeat-icon" focusable="false" aria-hidden="true">
+            <path
+              d="M20 6v5h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M4 18v-5h5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M18.5 9.5A7 7 0 0 0 7 7.5L4 13"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M5.5 14.5A7 7 0 0 0 17 16.5L20 11"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </span>
       )}
     </motion.div>

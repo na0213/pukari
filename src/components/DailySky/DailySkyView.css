@@ -221,6 +221,8 @@
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 3px;
 }
 
 /* 日付 */
@@ -231,6 +233,15 @@
   letter-spacing: 0.06em;
   text-shadow: 0 1px 6px rgba(0, 30, 80, 0.25);
   margin: 0;
+}
+
+.day-panel-note {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.68);
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 4px rgba(0, 30, 80, 0.18);
 }
 
 /* ナビ矢印 */
@@ -725,6 +736,10 @@
 
   .day-panel-date {
     font-size: 14px;
+  }
+
+  .day-panel-note {
+    font-size: 10px;
   }
 
   .daily-sky-footer {

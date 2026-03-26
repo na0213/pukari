@@ -11,6 +11,7 @@ create table bubbles (
   text text not null,
   memo text,
   color text,
+  repeat boolean not null default false,
   status text not null default 'floating'
     check (status in ('floating', 'nearby', 'completed')),
   size_factor real not null default 1.0,

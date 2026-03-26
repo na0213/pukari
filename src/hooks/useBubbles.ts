@@ -24,6 +24,7 @@ interface BubbleRow {
   text: string;
   memo: string | null;
   color: string | null;
+  repeat: boolean | null;
   status: string;
   size_factor: number;
   created_at: string;
@@ -52,6 +53,7 @@ function fromRow(row: BubbleRow): Bubble {
     text: row.text,
     memo: row.memo ?? undefined,
     color: normalizeBubbleColor(row.color),
+    repeat: row.repeat ?? false,
     status,
     sizeFactor: row.size_factor,
     createdAt: new Date(row.created_at),
@@ -77,6 +79,7 @@ function toRow(b: Bubble, userId: string): Omit<BubbleRow, 'updated_at'> {
     text: b.text,
     memo: b.memo ?? null,
     color: b.color ?? null,
+    repeat: b.repeat ?? false,
     status: b.status,
     size_factor: b.sizeFactor,
     created_at: b.createdAt.toISOString(),
@@ -135,6 +138,7 @@ export interface UseBubblesReturn {
   markDoneToday: (id: string) => void;    // 今日はここまで（done ログのみ、状態維持）
   updateMemo: (id: string, memo: string) => void;
   updateColor: (id: string, color: BubbleColorKey | null) => void;
+  updateRepeat: (id: string, repeat: boolean) => void;
   removeBubble: (id: string) => void;
 
   logs: BubbleLog[];
@@ -249,6 +253,7 @@ export function useBubbles(): UseBubblesReturn {
       id: crypto.randomUUID(),
       text: text.trim(),
       color: undefined,
+      repeat: false,
       status: 'floating',
       sizeFactor: 0.8 + Math.random() * 0.4,
       createdAt: new Date(),
@@ -320,6 +325,16 @@ export function useBubbles(): UseBubblesReturn {
     );
   };
 
+  const updateRepeat = (id: string, repeat: boolean) => {
+    setBubbles((prev) =>
+      prev.map((b) => {
+        if (b.id !== id) return b;
+        syncBubbleUpdate(id, { repeat });
+        return { ...b, repeat };
+      })
+    );
+  };
+
   const removeBubble = (id: string) => {
     setBubbles((prev) => prev.filter((b) => b.id !== id));
     setLogs((prev) => prev.filter((l) => l.bubbleId !== id));
@@ -375,6 +390,7 @@ export function useBubbles(): UseBubblesReturn {
     markDoneToday,
     updateMemo,
     updateColor,
+    updateRepeat,
     removeBubble,
     logs,
     todayLogs,

@@ -222,6 +222,7 @@ function DaySlide({
 
         <div className="day-panel-header-center">
           <p className="day-panel-date">{formatDateDisplay(dayData.date)}</p>
+          <p className="day-panel-note">光る星をタップすると内容が見られます</p>
         </div>
 
         <button

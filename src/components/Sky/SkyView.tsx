@@ -152,12 +152,12 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
     totalCount,
     canAdd,
     addBubble,
-    keepBubble,
     unkeepBubble,
     markDone,
     markDoneToday,
     updateMemo,
     updateColor,
+    updateRepeat,
     removeBubble,
     logs,
     isBubbleDoneToday,
@@ -210,7 +210,6 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
     setFocusedBubbleId(null);
     setSelectedBubbleId(id);
   };
-  const handleKeep = (id: string) => keepBubble(id);
 
   const handleMarkDone = (id: string) => {
     const bubble = activeBubbles.find((b) => b.id === id);
@@ -435,12 +434,12 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
             bubble={selectedBubble}
             isDoneToday={isBubbleDoneToday(selectedBubble.id)}
             onClose={() => setSelectedBubbleId(null)}
-            onKeep={handleKeep}
             onUnkeep={unkeepBubble}
             onMarkDone={handleMarkDone}
             onMarkDoneToday={handleMarkDoneToday}
             onUpdateMemo={updateMemo}
             onUpdateColor={updateColor}
+            onUpdateRepeat={updateRepeat}
             onRemove={removeBubble}
           />
         )}

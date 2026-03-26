@@ -15,9 +15,9 @@ export default function BubbleInput({ onAdd, canAdd, totalCount }: BubbleInputPr
   const handleSubmit = () => {
     const trimmed = text.trim();
     if (!trimmed || !canAdd) return;
+    inputRef.current?.blur();
     onAdd(trimmed);
     setText('');
-    inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
