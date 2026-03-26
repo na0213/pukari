@@ -1,5 +1,4 @@
-import { useRef, useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { Bubble, BubbleLog } from '../../types/bubble';
 import { useDailySky } from '../../hooks/useDailySky';
@@ -23,25 +22,87 @@ function formatDateDisplay(dateStr: string): string {
   return `${monthDay}（${weekday}）`;
 }
 
-// ── バブルサイズ ──
-function getBubbleSize(count: number): number {
-  if (count <= 10) return 70;
-  if (count <= 20) return 55;
-  return 40;
+interface BackgroundStar {
+  id: number;
+  left: number;
+  top: number;
+  size: number;
+  opacity: number;
 }
 
-function getBottleColumns(size: number): number {
-  if (size >= 70) return 3;
-  if (size >= 55) return 4;
-  return 5;
+function generateBackgroundStars(): BackgroundStar[] {
+  const count = 60;
+  return Array.from({ length: count }, (_, id) => ({
+    id,
+    left: 5 + Math.random() * 90,
+    top: 5 + Math.random() * 90,
+    size: 2 + Math.floor(Math.random() * 2),
+    opacity: 0.2 + Math.random() * 0.3,
+  }));
 }
 
-function seededRandom(seed: string): number {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+interface PlacedStar {
+  bubbleId: string;
+  left: number;
+  top: number;
+  size: number;
+  opacity: number;
+  twinkleOpacity: number;
+  duration: number;
+  delay: number;
+  glowStrong: string;
+  glowSoft: string;
+}
+
+function getStarGlowVars(color?: Bubble['color']): React.CSSProperties {
+  if (!color) {
+    return {
+      '--star-glow-strong': 'rgba(255, 206, 89, 0.80)',
+      '--star-glow-soft': 'rgba(255, 206, 89, 0.30)',
+    } as React.CSSProperties;
   }
-  return (Math.sin(hash) + 1) / 2;
+
+  const option = getBubbleColorStyle(color) as React.CSSProperties & {
+    '--bubble-color-border'?: string;
+    '--bubble-color-glow'?: string;
+  };
+
+  return {
+    '--star-glow-strong': option['--bubble-color-border'] ?? 'rgba(200, 220, 255, 1)',
+    '--star-glow-soft': option['--bubble-color-glow'] ?? 'rgba(200, 220, 255, 0.35)',
+  } as React.CSSProperties;
+}
+
+function getPlacedStars(items: DailySkyDetail['doneItems'], bubbleMap: Map<string, Bubble>): PlacedStar[] {
+  return items.map((item, index) => {
+    const bubble = bubbleMap.get(item.bubbleId);
+    const recency = items.length <= 1 ? 1 : 1 - index / Math.max(1, items.length - 1);
+    const sizeScore = Math.min(1, Math.max(0, recency * 0.72 + Math.random() * 0.28));
+    const bucket = sizeScore > 0.66 ? 'large' : sizeScore > 0.33 ? 'medium' : 'small';
+    const size = bucket === 'large' ? 8 : bucket === 'medium' ? 6 : 4;
+    const opacityBase = bucket === 'large' ? 0.7 : bucket === 'medium' ? 0.55 : 0.4;
+    const opacity = opacityBase + Math.random() * (1 - opacityBase);
+    const twinkleOpacity = Math.min(1, opacity + 0.2 + Math.random() * 0.2);
+    const duration = 2 + Math.random() * 3;
+    const delay = Math.random() * 3;
+    const glow = getStarGlowVars(bubble?.color) as React.CSSProperties & {
+      '--star-glow-strong'?: string;
+      '--star-glow-soft'?: string;
+    };
+
+    return {
+      bubbleId: item.bubbleId,
+      left: 5 + Math.random() * 90,
+      top: 5 + Math.random() * 90,
+      size,
+      opacity,
+      twinkleOpacity,
+      duration,
+      delay,
+      glowStrong: glow['--star-glow-strong'] ?? 'rgba(255, 206, 89, 0.80)',
+      glowSoft: glow['--star-glow-soft'] ?? 'rgba(255, 206, 89, 0.30)',
+    };
+  });
 }
 
 // ── バブル詳細ポップアップ ──
@@ -109,44 +170,27 @@ function DaySlide({
   dayIndex, totalDays,
   onGoNewer, onGoOlder,
 }: DaySlideProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const prefersReduced = useReducedMotion();
-  const [jarHeight, setJarHeight] = useState(320);
+  const [skyHeight, setSkyHeight] = useState(360);
   const [selectedBubbleId, setSelectedBubbleId] = useState<string | null>(null);
 
-  const bubbleMap = new Map(allBubbles.map((b) => [b.id, b]));
-
+  const bubbleMap = useMemo(() => new Map(allBubbles.map((b) => [b.id, b])), [allBubbles]);
+  const backgroundStars = useMemo(() => generateBackgroundStars(), [dayData.date]);
   const items = dayData.doneItems;
   const count = items.length;
-  const bubbleSize = getBubbleSize(count);
-  const columns = getBottleColumns(bubbleSize);
-  const stepY = Math.round(bubbleSize * 0.66);
-  const stepX = columns === 1 ? 0 : 62 / (columns - 1);
-  const bottomPad = 60;
-  const contentHeight = count > 0
-    ? bottomPad + Math.max(0, Math.ceil(count / columns) - 1) * stepY + bubbleSize + 60
-    : 0;
+  const placementKey = useMemo(() => items.map((item) => item.bubbleId).join('|'), [items]);
+  const placedStars = useMemo(() => getPlacedStars(items, bubbleMap), [bubbleMap, placementKey]);
 
-  const textSize = bubbleSize >= 70 ? '11px' : bubbleSize >= 55 ? '9px' : '8px';
-
-  // 瓶の高さ: 利用可能スペースの95% vs コンテンツ高さ の大きいほう
+  // 星空の高さ: 利用可能スペース vs コンテンツ高さ の大きいほう
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (wrapper) {
       const available = wrapper.offsetHeight;
-      const minH = Math.max(contentHeight, Math.floor(available * 0.95));
-      setJarHeight(Math.max(280, minH));
+      const minH = Math.max(360, Math.floor(available * 0.95));
+      setSkyHeight(Math.max(360, minH));
     }
-  }, [contentHeight]);
-
-  // バブルエリアを下端にスクロール
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el && count > 0) {
-      el.scrollTop = el.scrollHeight;
-    }
-  }, [dayData.date, count]);
+  }, [dayData.date]);
 
   const slideVariants = {
     enter: { x: direction > 0 ? '100%' : '-100%', opacity: 0 },
@@ -192,88 +236,95 @@ function DaySlide({
 
       {/* シャボン玉エリア */}
       <div className="day-panel-scroll-wrapper" ref={wrapperRef}>
-        <div className="day-panel-scroll" ref={scrollRef}>
+        <div className="day-panel-scroll">
           {count === 0 ? (
-            <div className="day-cylinder-stage day-cylinder-stage--empty" aria-hidden="true">
-              <div className="day-jar" style={{ height: `${jarHeight}px` }}>
-                <div className="day-jar-glass" />
-                <div className="day-jar-liquid" />
-                <div className="day-cylinder-empty">
-                  <p>まだ何も浮かんでいない日です。</p>
-                </div>
+            <div className="day-sky-stage day-sky-stage--empty" aria-hidden="true">
+              <div className="day-sky-background-stars">
+                {backgroundStars.map((star) => (
+                  <span
+                    key={star.id}
+                    className="day-sky-background-star"
+                    style={{
+                      left: `${star.left}%`,
+                      top: `${star.top}%`,
+                      width: `${star.size}px`,
+                      height: `${star.size}px`,
+                      opacity: star.opacity,
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="day-cylinder-empty">
+                <p>まだ星になった泡はありません。</p>
               </div>
             </div>
           ) : (
-            <div className="day-cylinder-stage">
-              <div className="day-jar" style={{ height: `${jarHeight}px` }}>
-                {/* バブル（ガラス装飾の下に配置、先にレンダリング） */}
-                <div className="day-jar-bubbles">
-                  {items.map((item, i) => {
-                    const row = Math.floor(i / columns);
-                    const lane = i % columns;
-                    const rowOffset = row % 2 === 0 ? 0 : stepX / 2;
-                    const baseLeft = 50 - 31;
-                    const leftPercent = Math.max(
-                      18,
-                      Math.min(
-                        82,
-                        baseLeft + rowOffset + lane * stepX + (seededRandom(`${item.bubbleId}:x`) - 0.5) * 4,
-                      ),
-                    );
-                    const bottomPx = bottomPad + row * stepY;
-                    const bubble = bubbleMap.get(item.bubbleId);
-                    const bubbleStyle = bubble ? getBubbleColorStyle(bubble.color) : {};
+            <div className="day-sky-stage" style={{ height: `${skyHeight}px` }}>
+              <div className="day-sky-background-stars">
+                {backgroundStars.map((star) => (
+                  <span
+                    key={star.id}
+                    className="day-sky-background-star"
+                    style={{
+                      left: `${star.left}%`,
+                      top: `${star.top}%`,
+                      width: `${star.size}px`,
+                      height: `${star.size}px`,
+                      opacity: star.opacity,
+                    }}
+                    />
+                  ))}
+              </div>
+              <div className="day-sky-stars">
+                {placedStars.map((star, i) => {
+                  const bubble = bubbleMap.get(star.bubbleId);
+                  const starStyle: React.CSSProperties = {
+                    ...getStarGlowVars(bubble?.color),
+                    width: `${star.size}px`,
+                    height: `${star.size}px`,
+                    '--star-opacity': star.opacity,
+                    '--star-peak-opacity': star.twinkleOpacity,
+                    '--twinkle-duration': `${star.duration}s`,
+                    '--twinkle-delay': `${star.delay}s`,
+                    '--star-glow-strong': star.glowStrong,
+                    '--star-glow-soft': star.glowSoft,
+                  } as React.CSSProperties;
 
-                    return (
-                      <div
-                        key={item.bubbleId}
-                        className="day-jar-bubble-pos"
-                        style={{
-                          bottom: `${bottomPx}px`,
-                          left: `${leftPercent}%`,
-                          width: `${bubbleSize}px`,
-                          height: `${bubbleSize}px`,
-                          zIndex: count - i,
-                        }}
+                  return (
+                    <div
+                      key={star.bubbleId}
+                      className="day-sky-star-pos"
+                      style={{
+                        top: `${star.top}%`,
+                        left: `${star.left}%`,
+                        width: `${star.size}px`,
+                        height: `${star.size}px`,
+                        zIndex: count - i,
+                      }}
+                    >
+                      <motion.div
+                        initial={prefersReduced ? false : { opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={prefersReduced
+                          ? { duration: 0 }
+                          : { delay: i * 0.08, duration: 0.45, ease: 'easeOut' }
+                        }
+                        style={{ width: '100%', height: '100%' }}
                       >
-                        <motion.div
-                          initial={prefersReduced ? false : { opacity: 0, scale: 0.5 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={prefersReduced
-                            ? { duration: 0 }
-                            : { delay: i * 0.08, duration: 0.45, ease: 'easeOut' }
-                          }
-                          style={{ width: '100%', height: '100%' }}
-                        >
-                          <button
-                            type="button"
-                            className="day-bubble"
-                            style={{
-                              width: `${bubbleSize}px`,
-                              height: `${bubbleSize}px`,
-                              ...bubbleStyle,
-                            } as React.CSSProperties}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedBubbleId(item.bubbleId);
-                            }}
-                            aria-label={`${item.text} の詳細を見る`}
-                          >
-                            <span
-                              className="day-bubble-text"
-                              style={{ fontSize: textSize }}
-                            >
-                              {item.text}
-                            </span>
-                          </button>
-                        </motion.div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {/* ガラスの光沢（バブルの上に重ねる） */}
-                <div className="day-jar-glass" />
-                <div className="day-jar-liquid" />
+                        <button
+                          type="button"
+                          className="day-star"
+                          style={starStyle}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedBubbleId(star.bubbleId);
+                          }}
+                          aria-label={`${bubble?.text ?? 'できたこと'} の詳細を見る`}
+                        />
+                      </motion.div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -310,8 +361,34 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
   const [activeTab, setActiveTab] = useState<TabType>('today');
   const [dayIndex, setDayIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [showYearHint, setShowYearHint] = useState(false);
 
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    if (activeTab !== 'year') {
+      setShowYearHint(false);
+      return;
+    }
+
+    try {
+      if (localStorage.getItem('starHintShown') === 'true') {
+        return;
+      }
+      localStorage.setItem('starHintShown', 'true');
+    } catch {
+      return;
+    }
+
+    setShowYearHint(true);
+    const timer = window.setTimeout(() => {
+      setShowYearHint(false);
+    }, 3500);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [activeTab]);
 
   const goOlder = () => {
     if (dayIndex < allDays.length - 1) {
@@ -408,7 +485,13 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
 
         {/* 今年できたことタブ */}
         {activeTab === 'year' && (
-          <YearlyView bubbles={bubbles} logs={logs} year={currentYear} onRemove={onRemove} />
+          <YearlyView
+            bubbles={bubbles}
+            logs={logs}
+            year={currentYear}
+            onRemove={onRemove}
+            showHint={showYearHint}
+          />
         )}
       </div>
 

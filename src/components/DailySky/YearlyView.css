@@ -10,6 +10,25 @@
   background: #fff;
 }
 
+.ym-hint-overlay {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 6;
+}
+
+.ym-hint-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  opacity: 0;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.18);
+  animation: ym-hint-fade 3.5s ease-in-out forwards;
+}
+
 /* 年ラベル */
 .ym-year-label {
   flex-shrink: 0;
@@ -122,6 +141,11 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+.ym-bubble-text-button--hint {
+  animation: ym-bubble-hint-pulse 1.2s ease-in-out 2 0.5s;
+  transform-origin: left center;
 }
 
 /* テキスト */
@@ -248,4 +272,28 @@
   font-size: 14px;
   color: var(--text-secondary);
   opacity: 0.65;
+}
+
+@keyframes ym-hint-fade {
+  0% {
+    opacity: 0;
+  }
+  14% {
+    opacity: 0.75;
+  }
+  71% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes ym-bubble-hint-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
 }

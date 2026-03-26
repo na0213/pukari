@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import type { Bubble, BubbleLog } from '../../types/bubble';
 import './YearlyView.css';
 
@@ -7,6 +7,7 @@ interface YearlyViewProps {
   logs: BubbleLog[];
   year: number;
   onRemove?: (id: string) => void;
+  showHint?: boolean;
 }
 
 // 泡ごとに各月に done ログがあるかを返す（0=1月, 11=12月）
@@ -27,7 +28,7 @@ const MONTH_LABELS = [
   '7月', '8月', '9月', '10月', '11月', '12月',
 ];
 
-export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyViewProps) {
+export default function YearlyView({ bubbles, logs, year, onRemove, showHint = false }: YearlyViewProps) {
   const currentMonth = new Date().getMonth(); // 0-indexed
   const [swipeId, setSwipeId] = useState<string | null>(null);
   const [activeDeleteId, setActiveDeleteId] = useState<string | null>(null);
@@ -47,6 +48,21 @@ export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyView
   };
 
   const monthlyMap = buildMonthlyMap(logs, year);
+  const hintBubbleId = useMemo(() => {
+    let bestId: string | null = null;
+    let bestScore = -1;
+
+    for (const bubble of bubbles) {
+      const months = monthlyMap[bubble.id] ?? Array(12).fill(false);
+      const score = months.filter(Boolean).length;
+      if (score > bestScore) {
+        bestScore = score;
+        bestId = bubble.id;
+      }
+    }
+
+    return bestId;
+  }, [bubbles, monthlyMap]);
 
   // 並び順: nearby → floating → completed、同グループ内は createdAt 新しい順
   const sortedBubbles = [...bubbles].sort((a, b) => {
@@ -67,6 +83,12 @@ export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyView
   return (
     <div className="ym-wrap">
       <div className="ym-year-label">{year}年</div>
+
+      {showHint && (
+        <div className="ym-hint-overlay" aria-hidden="true">
+          <div className="ym-hint-text">星をタップすると内容が見られます</div>
+        </div>
+      )}
 
       <div
         className="ym-scroll"
@@ -101,7 +123,7 @@ export default function YearlyView({ bubbles, logs, year, onRemove }: YearlyView
                     <div className={`ym-name-cell-inner ${isSwiped ? 'ym-name-cell-inner--swiped' : ''}`}>
                       <button
                         type="button"
-                        className="ym-bubble-text-button"
+                        className={`ym-bubble-text-button ${showHint && bubble.id === hintBubbleId ? 'ym-bubble-text-button--hint' : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (!onRemove) return;
