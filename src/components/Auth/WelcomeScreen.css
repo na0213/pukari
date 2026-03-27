@@ -2,6 +2,7 @@
 .welcome-screen {
   position: fixed;
   inset: 0;
+  z-index: 200;
   background:
     radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.16) 0 10px, transparent 11px),
     radial-gradient(circle at 74% 22%, rgba(255, 255, 255, 0.14) 0 14px, transparent 15px),
@@ -41,6 +42,37 @@
   opacity: 0.38;
   animation-duration: 15s;
   animation-direction: reverse;
+}
+
+/* ── 閉じるボタン（LP表示時のみ） ── */
+.welcome-close-btn {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(200, 220, 240, 0.5);
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(60, 80, 108, 0.72);
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(96, 129, 163, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.welcome-close-btn:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 @keyframes welcome-bubble-drift {
@@ -142,9 +174,156 @@
 }
 
 .welcome-hero-visual {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   width: 100%;
+}
+
+/* ── スクリーンショットスライダー ── */
+
+/* 矢印＋ビューアを横並びにするラッパー */
+.welcome-slide-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(322px, 100%);
+}
+
+/* 矢印ボタン共通 */
+.welcome-slide-arrow {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(200, 220, 240, 0.5);
+  border-radius: 50%;
+  color: rgba(60, 80, 108, 0.72);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, opacity 0.15s;
+  box-shadow: 0 4px 12px rgba(96, 129, 163, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.welcome-slide-arrow svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.welcome-slide-arrow:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.92);
+  transform: scale(1.08);
+}
+
+.welcome-slide-arrow:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.welcome-slide-arrow:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.welcome-slide-viewer {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 9 / 19;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 24px 56px rgba(96, 129, 163, 0.2),
+    0 8px 22px rgba(96, 129, 163, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.welcome-slide-viewer:active {
+  cursor: grabbing;
+}
+
+.welcome-slide-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.welcome-slide-item {
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 画像がない間に表示するプレースホルダー */
+.welcome-slide-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.welcome-slide-placeholder-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.welcome-slide-placeholder-sub {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+/* 実際の画像（読み込めたらプレースホルダーを覆う） */
+.welcome-slide-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  transition: opacity 0.2s;
+}
+
+/* ── ドットナビゲーション ── */
+.welcome-slide-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-slide-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(96, 129, 163, 0.28);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.welcome-slide-dot--active {
+  background: rgba(78, 110, 148, 0.72);
+  transform: scale(1.4);
 }
 
 /* ── 紹介カード ── */
@@ -358,6 +537,14 @@
   gap: 10px;
 }
 
+/* li は縦並びコンテナ */
+.welcome-feature-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* テキストカード */
 .welcome-feature-item {
   display: flex;
   align-items: flex-start;
@@ -368,6 +555,30 @@
   border: 1px solid rgba(255, 255, 255, 0.58);
   box-shadow: 0 10px 24px rgba(96, 129, 163, 0.08);
   text-align: left;
+}
+
+/* 画像スロット（高さはJSでカード高×2を設定） */
+.welcome-feature-img-slot {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 8px 20px rgba(96, 129, 163, 0.07);
+  /* JSで高さが設定されるまでの仮の高さ */
+  min-height: 120px;
+}
+
+.welcome-feature-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  transition: opacity 0.2s;
 }
 
 .welcome-feature-icon {
@@ -561,6 +772,66 @@
   padding-top: 6px;
 }
 
+.welcome-background {
+  margin-top: 8px;
+  padding: 22px 18px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.64);
+  box-shadow: 0 12px 28px rgba(96, 129, 163, 0.08);
+}
+
+.welcome-background-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.welcome-background-title {
+  margin: 0;
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.45;
+  color: rgba(35, 49, 72, 0.94);
+  text-align: left;
+}
+
+.welcome-background-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.welcome-background-body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.9;
+  color: rgba(67, 85, 109, 0.88);
+  text-align: left;
+}
+
+.welcome-background-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  font-weight: 600;
+  color: rgba(54, 69, 92, 0.92);
+}
+
+.welcome-background-author-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(96, 129, 163, 0.12);
+}
+
+.welcome-background-author-text {
+  margin: 0;
+}
+
 @media (min-width: 640px) {
   .welcome-hero {
     grid-template-columns: minmax(280px, 0.95fr) minmax(0, 1.05fr);
@@ -605,6 +876,10 @@
     flex: 1 1 0;
     max-width: 420px;
   }
+
+  .welcome-background {
+    padding: 26px 24px 24px;
+  }
 }
 
 @media (max-width: 639px) {
@@ -646,5 +921,9 @@
   .welcome-actions,
   .welcome-actions--footer {
     width: 100%;
+  }
+
+  .welcome-background {
+    padding: 20px 16px 18px;
   }
 }

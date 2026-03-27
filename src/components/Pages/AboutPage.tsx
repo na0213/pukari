@@ -2,6 +2,7 @@ import './AboutPage.css';
 
 interface AboutPageProps {
   onClose: () => void;
+  onOpenWelcome: () => void;
 }
 
 function BubbleIcon() {
@@ -34,7 +35,7 @@ function WaveIcon() {
   );
 }
 
-export default function AboutPage({ onClose }: AboutPageProps) {
+export default function AboutPage({ onClose, onOpenWelcome }: AboutPageProps) {
   return (
     <div className="about-overlay" onClick={onClose} aria-label="Pukariについて">
       <div
@@ -112,6 +113,17 @@ export default function AboutPage({ onClose }: AboutPageProps) {
           <p className="about-footer-note">
             ver 0.1 — ゆっくり育てています。
           </p>
+
+          <button
+            className="about-more-link"
+            onClick={() => {
+              onClose();
+              onOpenWelcome();
+            }}
+            aria-label="Pukariをもっと詳しく見る"
+          >
+            Pukariをもっと詳しく
+          </button>
         </div>
       </div>
     </div>

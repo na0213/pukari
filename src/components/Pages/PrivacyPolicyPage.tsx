@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage({ onClose }: PrivacyPolicyPageProps) {
             <p className="privacy-sub-heading">■ ゲスト利用の場合</p>
             <ul className="privacy-list">
               <li>匿名のユーザーID（自動生成）</li>
-              <li>アプリ内で入力したデータ（シャボン玉のテキスト、メモ、記録）</li>
+              <li>アプリ内で入力したデータ（テキスト、メモ、記録）</li>
             </ul>
             <p className="privacy-note">※ メールアドレスや氏名などの個人情報は収集しません。</p>
 
@@ -72,14 +72,14 @@ export default function PrivacyPolicyPage({ onClose }: PrivacyPolicyPageProps) {
               もくもくモードでは、入室中に限り意気込みのテキストが他のユーザーに表示されます。メールアドレスや氏名など、個人を特定できる情報は他のユーザーに表示されません。退出時に意気込みのデータは削除されます。
             </p>
             <p className="privacy-text">
-              それ以外のデータ（シャボン玉、記録など）は他のユーザーに共有されることはありません。
+              それ以外のデータ（テキスト、メモ、記録など）は他のユーザーに共有されることはありません。
             </p>
           </section>
 
           <section className="privacy-section">
             <h2 className="privacy-heading">5. データの削除</h2>
             <ul className="privacy-list">
-              <li>アプリ内でシャボン玉を個別に削除できます</li>
+              <li>アプリ内でテキストメモを個別に削除できます</li>
               <li>アカウント作成後は、アカウントおよびすべてのデータを削除できます</li>
               <li>ゲスト利用の場合も、端末・ブラウザに保存されたデータを削除できます</li>
             </ul>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { UseAuthReturn } from '../../hooks/useAuth';
 import GoogleConsentModal from './GoogleConsentModal';
 import './WelcomeScreen.css';
@@ -33,30 +33,67 @@ function SparkIcon() {
   );
 }
 
+// ── スクリーンショットスライド ──
+const SLIDES = [
+  {
+    src: '/images/welcome-slide-1.png',
+    alt: 'Pukari - 思いつきを泡に浮かべる画面',
+    label: 'TOP',
+    sub: '泡に浮かべる',
+    placeholderBg: 'linear-gradient(180deg, rgba(222,240,252,0.95) 0%, rgba(200,226,246,0.95) 100%)',
+    labelColor: 'rgba(62,81,107,0.66)',
+    subColor: 'rgba(62,81,107,0.46)',
+  },
+  {
+    src: '/images/welcome-slide-2.png',
+    alt: 'Pukari - 泡にメモを追加する画面',
+    label: 'MEMO',
+    sub: '泡にメモ',
+    placeholderBg: 'linear-gradient(180deg, rgba(246,249,255,0.95) 0%, rgba(230,241,252,0.95) 100%)',
+    labelColor: 'rgba(62,81,107,0.66)',
+    subColor: 'rgba(62,81,107,0.46)',
+  },
+  {
+    src: '/images/welcome-slide-3.png',
+    alt: 'Pukari - もくもく集中タイム画面',
+    label: 'LAGOON',
+    sub: '集中する',
+    placeholderBg: 'linear-gradient(180deg, rgba(19,34,76,0.96) 0%, rgba(24,51,110,0.92) 100%)',
+    labelColor: 'rgba(216,236,255,0.72)',
+    subColor: 'rgba(216,236,255,0.50)',
+  },
+] as const;
+
 const FEATURE_ITEMS = [
   {
     title: '思いつきを浮かべる',
-    text: 'アイデアもタスクも、まずは泡に。',
+    text: 'アイデアもタスクも、まずは浮かべる',
+    imgSrc: '/images/welcome-feature-1.png',
   },
   {
     title: 'メモを追加する',
-    text: '泡の中に、あとで見返すメモを残せます。',
+    text: '追記したいことはメモに残せます',
+    imgSrc: '/images/welcome-feature-2.png',
   },
   {
-    title: '3つの状態でゆるく整理',
-    text: 'キープ / 今日はここまで / できた！ で進み具合がわかります。',
+    title: 'ゆるく記録する',
+    text: '日々やりたいことは繰り返しに /  できた！を押すたび、空色が朝→夕方→夜へ。',
+    imgSrc: '/images/welcome-feature-3.png',
   },
   {
-    title: '空の色が少しずつ変わる',
-    text: '今日の積み重ねで、背景の空も表情を変えます。',
+    title: 'できたことの振り返り',
+    text: '今日のできたことは、夜空に星となって浮かびます。',
+    imgSrc: '/images/welcome-feature-4.png',
   },
   {
     title: 'みんなともくもくタイムへ',
-    text: '一緒にもくもく作業する集中モード。意気込みを入れても、空欄のままでもOKです。',
+    text: '集中できそうなときは、集中できる空間へ。他の人も浮かんでいるかも',
+    imgSrc: '/images/welcome-feature-5.png',
   },
   {
     title: 'サウンドも選べる',
-    text: '気分に合わせて、音と空気感を切り替えられます。',
+    text: '集中しているときは、気分に合わせて、音と空気感を切り替えられます。',
+    imgSrc: '/images/welcome-feature-6.png',
   },
 ];
 
@@ -107,12 +144,55 @@ function WelcomeActions({
 interface WelcomeScreenProps {
   auth: UseAuthReturn;
   onOpenPrivacy: () => void;
+  onClose?: () => void;
 }
 
-export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProps) {
+export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeScreenProps) {
   const [logoError, setLogoError] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [showGoogleConsent, setShowGoogleConsent] = useState(false);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const featureCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const featureImgRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // 全カードを最大高さに揃えて、画像スロットをその2倍に設定
+  useEffect(() => {
+    const update = () => {
+      const cards = featureCardRefs.current.filter(Boolean) as HTMLDivElement[];
+
+      // いったんリセットして自然な高さを取得
+      cards.forEach((card) => { card.style.height = ''; });
+
+      // 最大高さを求める
+      const maxH = Math.max(...cards.map((card) => card.offsetHeight));
+
+      // 全カードを最大高さに揃える
+      cards.forEach((card) => { card.style.height = `${maxH}px`; });
+
+      // 画像スロットをその2倍に設定
+      featureImgRefs.current.forEach((slot) => {
+        if (slot) slot.style.height = `${maxH * 2}px`;
+      });
+    };
+
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) setSlideIndex((i) => Math.min(i + 1, SLIDES.length - 1));
+      else setSlideIndex((i) => Math.max(i - 1, 0));
+    }
+    touchStartX.current = null;
+  };
 
   const handleGuest = async () => {
     setIsGuestLoading(true);
@@ -124,6 +204,15 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
 
   return (
     <div className="welcome-screen">
+      {onClose && (
+        <button
+          className="welcome-close-btn"
+          onClick={onClose}
+          aria-label="閉じる"
+        >
+          ×
+        </button>
+      )}
       <div className="welcome-content">
         <section className="welcome-hero">
           <div className="welcome-hero-copy">
@@ -140,17 +229,18 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
               )}
             </div>
 
-            <p className="welcome-tagline">がんばらなくても使える、ゆるい整理アプリ</p>
-            <h1 className="welcome-title">思いつきを泡にして、やさしく整理。</h1>
+            <p className="welcome-tagline">頭の中のごちゃごちゃ、ぜんぶ浮かべる</p>
+            <h1 className="welcome-title">アイデアもTodoも。<br />泡に浮かべるだけの<br />メモアプリ</h1>
             <p className="welcome-lead">
-              アイデアもタスクも、まずは気軽に泡にして浮かべるだけ。
-              あとからメモを足したり、ゆるく見返せます。
+              思いついたことを、気軽に泡にして浮かべるだけ。<br />
+              できたことは「できた！」で記録すると、空の色が少しずつ変わる。<br />
+              1年後、意外とやってた自分に気づける。
             </p>
 
             <div className="welcome-hero-stats" aria-label="できること">
-              <span>思いつきを泡に</span>
-              <span>泡にメモを追加</span>
-              <span>集中タイムに参加</span>
+              <span>思いついたことを泡に</span>
+              <span>できたことを記録</span>
+              <span>集中できる場所</span>
             </div>
 
             <WelcomeActions
@@ -163,57 +253,87 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
           </div>
 
           <div className="welcome-hero-visual" aria-label="Pukariの画面イメージ">
-            <article className="welcome-preview welcome-preview--home">
-              <div className="welcome-preview-top">
-                <span className="welcome-preview-kicker">TOP</span>
-                <span className="welcome-preview-tag">泡に浮かべる</span>
-              </div>
-              <div className="welcome-preview-bubbles">
-                <span className="welcome-preview-bubble welcome-preview-bubble--lg">アプリ作る</span>
-                <span className="welcome-preview-bubble welcome-preview-bubble--md">プレゼン</span>
-                <span className="welcome-preview-bubble welcome-preview-bubble--sm">筋トレ</span>
-              </div>
-              <p className="welcome-preview-copy">
-                思いついたことを、そのまま空に浮かべます。
-              </p>
-            </article>
+            {/* ── スクリーンショットスライダー ── */}
+            <div className="welcome-slide-wrapper">
+              {/* 前へ矢印 */}
+              <button
+                type="button"
+                className="welcome-slide-arrow welcome-slide-arrow--prev"
+                onClick={() => setSlideIndex((i) => Math.max(i - 1, 0))}
+                disabled={slideIndex === 0}
+                aria-label="前のスライドへ"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
 
-            <article className="welcome-preview welcome-preview--detail">
-              <div className="welcome-preview-top">
-                <span className="welcome-preview-kicker">MEMO</span>
-                <span className="welcome-preview-tag">泡にメモ</span>
-              </div>
-              <div className="welcome-preview-sheet">
-                <p className="welcome-preview-title">【目標】アプリつくる</p>
-                <div className="welcome-preview-note">
-                  <span>・筋トレアプリ</span>
-                  <span>・家計簿アプリ</span>
+              <div
+                className="welcome-slide-viewer"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                aria-label="Pukariの画面スライドショー"
+              >
+                <div
+                  className="welcome-slide-track"
+                  style={{ transform: `translateX(-${slideIndex * 100}%)` }}
+                >
+                  {SLIDES.map((slide, i) => (
+                    <div key={i} className="welcome-slide-item" aria-hidden={i !== slideIndex}>
+                      {/* 画像がない間のプレースホルダー */}
+                      <div
+                        className="welcome-slide-placeholder"
+                        style={{ background: slide.placeholderBg }}
+                        aria-hidden="true"
+                      >
+                        <span className="welcome-slide-placeholder-label" style={{ color: slide.labelColor }}>
+                          {slide.label}
+                        </span>
+                        <span className="welcome-slide-placeholder-sub" style={{ color: slide.subColor }}>
+                          {slide.sub}
+                        </span>
+                      </div>
+                      {/* 実際の画像（存在する場合にプレースホルダーを覆う） */}
+                      <img
+                        src={slide.src}
+                        alt={slide.alt}
+                        className="welcome-slide-img"
+                        onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0'; }}
+                        draggable={false}
+                      />
+                    </div>
+                  ))}
                 </div>
-                <div className="welcome-preview-statuses">
-                  <span>◎ キープ</span>
-                  <span>今日はここまで</span>
-                  <span>できた！</span>
-                </div>
               </div>
-              <p className="welcome-preview-copy">
-                メモを足して、キープや完了の状態も残せます。
-              </p>
-            </article>
 
-            <article className="welcome-preview welcome-preview--lagoon">
-              <div className="welcome-preview-top">
-                <span className="welcome-preview-kicker">LAGOON</span>
-                <span className="welcome-preview-tag">集中する</span>
-              </div>
-              <div className="welcome-preview-lagoon">
-                <span className="welcome-preview-star" />
-                <span className="welcome-preview-star welcome-preview-star--dim" />
-                <span className="welcome-preview-lagoon-bubble">やるぞ</span>
-              </div>
-              <p className="welcome-preview-copy">
-                もくもく中の人の泡が浮かび、音や空気感も切り替えられます。
-              </p>
-            </article>
+              {/* 次へ矢印 */}
+              <button
+                type="button"
+                className="welcome-slide-arrow welcome-slide-arrow--next"
+                onClick={() => setSlideIndex((i) => Math.min(i + 1, SLIDES.length - 1))}
+                disabled={slideIndex === SLIDES.length - 1}
+                aria-label="次のスライドへ"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+            </div>
+
+            {/* ドットナビゲーション */}
+            <div className="welcome-slide-dots" role="tablist" aria-label="スライドナビゲーション">
+              {SLIDES.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`welcome-slide-dot${i === slideIndex ? ' welcome-slide-dot--active' : ''}`}
+                  onClick={() => setSlideIndex(i)}
+                  role="tab"
+                  aria-selected={i === slideIndex}
+                  aria-label={`スライド ${i + 1}`}
+                />
+              ))}
+            </div>
           </div>
         </section>
 
@@ -224,12 +344,31 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
           </div>
 
           <ul className="welcome-feature-list">
-            {FEATURE_ITEMS.map((item) => (
-              <li key={item.title} className="welcome-feature-item">
-                <span className="welcome-feature-icon" aria-hidden="true"><SparkIcon /></span>
-                <div className="welcome-feature-body">
-                  <p className="welcome-feature-title">{item.title}</p>
-                  <p className="welcome-feature-text">{item.text}</p>
+            {FEATURE_ITEMS.map((item, i) => (
+              <li key={item.title} className="welcome-feature-list-item">
+                {/* テキストカード */}
+                <div
+                  className="welcome-feature-item"
+                  ref={(el) => { featureCardRefs.current[i] = el; }}
+                >
+                  <span className="welcome-feature-icon" aria-hidden="true"><SparkIcon /></span>
+                  <div className="welcome-feature-body">
+                    <p className="welcome-feature-title">{item.title}</p>
+                    <p className="welcome-feature-text">{item.text}</p>
+                  </div>
+                </div>
+                {/* 画像スロット（高さはJS で 2×カード高） */}
+                <div
+                  className="welcome-feature-img-slot"
+                  ref={(el) => { featureImgRefs.current[i] = el; }}
+                >
+                  <img
+                    src={item.imgSrc}
+                    alt={`${item.title}の画面イメージ`}
+                    className="welcome-feature-img"
+                    onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0'; }}
+                    draggable={false}
+                  />
                 </div>
               </li>
             ))}
@@ -250,6 +389,60 @@ export default function WelcomeScreen({ auth, onOpenPrivacy }: WelcomeScreenProp
               onGuest={handleGuest}
               className="welcome-actions--footer"
             />
+          </div>
+
+          <div className="welcome-background">
+            <div className="welcome-background-head">
+              <span className="welcome-story-kicker">開発した背景</span>
+              <h3 className="welcome-background-title">Pukariは、こんな気持ちから生まれました。</h3>
+            </div>
+
+            <div className="welcome-background-body">
+              <p>
+                スケジュール管理、Todo、習慣化、ジャーナリング…<br />
+                どれも試したけど、結局続かなかった私。
+              </p>
+              <p>
+                「習慣化は大事」と聞くたびに焦るけど、<br />
+                本当はもっとゆるっと過ごしてもいいよね、と思ったのがすべてのはじまりです。
+              </p>
+              <p>
+                手帳は1月で真っ白、<br />
+                ジャーナリングは3ページで終了、<br />
+                Todoはどれも数日で消える。<br />
+                思いついたことをメモしても散らばって、いつの間にか見失う。<br />
+                年末になると「今年、私は何をしたんだっけ…」と虚しくなる。
+              </p>
+              <p>
+                そんなとき、<br />
+                「なんでもいいから、まずは浮かべておこう」<br />
+                と思える場所が欲しくなりました。
+              </p>
+              <p>
+                アイデアでも、タスクでも、気になることでも。<br />
+                時間に追われず、やりたいと思ったときにゆるく振り返れて、<br />
+                集中したいときはちゃんと集中できる。<br />
+                そしてあとで「今年も意外とやってたな」と微笑める。
+              </p>
+              <p>
+                そんな、<br />
+                がんばらなくても続けられるアプリを、自分自身のために作りました。<br />
+                Pukariが、あなたの頭の中のごちゃごちゃを<br />
+                優しく、泡のように包めますように。
+              </p>
+              <div className="welcome-background-author">
+                <p className="welcome-background-author-text">
+                  開発者：Natomi
+                </p>
+                <img
+                  src="/images/natomi.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="welcome-background-author-icon"
+                  draggable={false}
+                />
+              </div>
+            </div>
           </div>
         </section>
 

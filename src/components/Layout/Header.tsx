@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { UseAuthReturn } from '../../hooks/useAuth';
+import { APP_LOGO } from '../../lib/constants';
 import './Header.css';
 
 function PrivacyIcon() {
@@ -48,11 +49,12 @@ interface HeaderProps {
   onOpenGuest: () => void;
   onOpenPwa: () => void;
   onOpenPrivacy: () => void;
+  onOpenWelcome: () => void;
   auth: UseAuthReturn;
   onSignOut: () => void;
 }
 
-export default function Header({ onOpenAbout, onOpenGuest, onOpenPwa, onOpenPrivacy, auth, onSignOut }: HeaderProps) {
+export default function Header({ onOpenAbout, onOpenGuest, onOpenPwa, onOpenPrivacy, onOpenWelcome, auth, onSignOut }: HeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
@@ -200,7 +202,19 @@ export default function Header({ onOpenAbout, onOpenGuest, onOpenPwa, onOpenPriv
           {/* サイドパネル */}
           <nav className="sky-side-menu" aria-label="メニュー">
             <div className="sky-side-menu-header">
-              <span className="sky-side-menu-title">Pukari</span>
+              <button
+                className="sky-side-menu-logo-btn"
+                onClick={() => { close(); onOpenWelcome(); }}
+                aria-label="Pukariの紹介ページを開く"
+              >
+                <img
+                  className="sky-side-menu-logo"
+                  src={APP_LOGO}
+                  alt=""
+                  aria-hidden="true"
+                  draggable={false}
+                />
+              </button>
               <button
                 className="sky-side-menu-close"
                 onClick={close}

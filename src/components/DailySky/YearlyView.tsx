@@ -65,7 +65,7 @@ export default function YearlyView({ bubbles, logs, year, onRemove, showHint = f
   if (sortedBubbles.length === 0) {
     return (
       <div className="ym-empty">
-        <p>まだシャボン玉がありません。</p>
+        <p>まだありません🫧</p>
       </div>
     );
   }

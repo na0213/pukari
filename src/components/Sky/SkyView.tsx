@@ -140,11 +140,12 @@ interface SkyViewProps {
   onOpenGuest: () => void;
   onOpenPwa: () => void;
   onOpenPrivacy: () => void;
+  onOpenWelcome: () => void;
   auth: UseAuthReturn;
   onSignOut: () => void;
 }
 
-export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpenPwa, onOpenPrivacy, auth, onSignOut }: SkyViewProps) {
+export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpenPwa, onOpenPrivacy, onOpenWelcome, auth, onSignOut }: SkyViewProps) {
   const {
     bubbles,
     activeBubbles,
@@ -329,7 +330,7 @@ export default function SkyView({ onEnterLagoon, onOpenAbout, onOpenGuest, onOpe
     <div className={`sky-view sky-view--${skyPhase}`} aria-label="Pukariの空">
 
       {/* ヘッダー */}
-      <Header onOpenAbout={onOpenAbout} onOpenGuest={onOpenGuest} onOpenPwa={onOpenPwa} onOpenPrivacy={onOpenPrivacy} auth={auth} onSignOut={onSignOut} />
+      <Header onOpenAbout={onOpenAbout} onOpenGuest={onOpenGuest} onOpenPwa={onOpenPwa} onOpenPrivacy={onOpenPrivacy} onOpenWelcome={onOpenWelcome} auth={auth} onSignOut={onSignOut} />
 
       {/* 星レイヤー（night のみ） */}
       {skyPhase === 'night' && (

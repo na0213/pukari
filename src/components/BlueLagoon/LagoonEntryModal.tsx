@@ -51,7 +51,7 @@ export default function LagoonEntryModal({ onEnter, onClose }: LagoonEntryModalP
           ref={inputRef}
           className="entry-input"
           type="text"
-          placeholder="ひとこと"
+          placeholder="ひとこと（無言もOK）"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           maxLength={40}

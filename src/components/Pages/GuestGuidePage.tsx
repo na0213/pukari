@@ -81,8 +81,8 @@ export default function GuestGuidePage({ onClose, auth }: GuestGuidePageProps) {
           </p>
 
           <ul className="guest-points">
-            <li>入力した内容は、今お使いのブラウザに保存されます。</li>
-            <li>あとからGoogleアカウントと連携すれば、データは消えません。</li>
+            <li>入力した内容は、今お使いのブラウザに保存されます</li>
+            <li>あとからGoogleアカウントと連携すれば、データは消えません</li>
           </ul>
 
           <div className="guest-points guest-points--warning" aria-label="ご注意">
@@ -95,14 +95,10 @@ export default function GuestGuidePage({ onClose, auth }: GuestGuidePageProps) {
           </div>
 
           <p className="guest-description">
-            まずはゲストで始めて、必要になったらGoogleログインへ。
-            そんな使い方ができます。
+            まずはゲストで始めて、必要になったらGoogleログインへ
           </p>
 
           <div className="guest-actions">
-            <p className="guest-actions-lead">
-              ここから、Google連携とゲストデータ削除を行えます。
-            </p>
 
             {!showLinkConfirm ? (
               <button

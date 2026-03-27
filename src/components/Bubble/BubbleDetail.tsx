@@ -238,7 +238,7 @@ export default function BubbleDetail({
             ) : (
               <div className="bubble-detail-delete-confirm">
                 <p className="bubble-detail-delete-confirm-text">
-                  このシャボン玉を消しますか？この操作は元に戻せません。
+                  メモのデータがすべて消えます。<br />この操作は元に戻せません。
                 </p>
                 <div className="bubble-detail-delete-confirm-btns">
                   <button

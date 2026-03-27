@@ -256,7 +256,7 @@ function DaySlide({
                 ))}
               </div>
               <div className="day-cylinder-empty">
-                <p>まだ星になった泡はありません。</p>
+                <p>まだありません🫧</p>
               </div>
             </div>
           ) : (

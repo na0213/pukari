@@ -11,7 +11,7 @@ import WelcomeScreen from './components/Auth/WelcomeScreen';
 import { useAuth } from './hooks/useAuth';
 import { useLagoon } from './hooks/useLagoon';
 
-type CurrentPage = null | 'about' | 'guest' | 'pwa' | 'privacy';
+type CurrentPage = null | 'about' | 'guest' | 'pwa' | 'privacy' | 'welcome';
 
 function LoadingScreen() {
   return (
@@ -88,13 +88,17 @@ function App() {
           onOpenGuest={() => setCurrentPage('guest')}
           onOpenPwa={() => setCurrentPage('pwa')}
           onOpenPrivacy={() => setCurrentPage('privacy')}
+          onOpenWelcome={() => setCurrentPage('welcome')}
           auth={auth}
           onSignOut={handleSignOut}
         />
       )}
 
       {currentPage === 'about' && (
-        <AboutPage onClose={() => setCurrentPage(null)} />
+        <AboutPage
+          onClose={() => setCurrentPage(null)}
+          onOpenWelcome={() => setCurrentPage('welcome')}
+        />
       )}
       {currentPage === 'guest' && (
         <GuestGuidePage
@@ -107,6 +111,13 @@ function App() {
       )}
       {currentPage === 'privacy' && (
         <PrivacyPolicyPage onClose={() => setCurrentPage(null)} />
+      )}
+      {currentPage === 'welcome' && (
+        <WelcomeScreen
+          auth={auth}
+          onOpenPrivacy={() => setCurrentPage('privacy')}
+          onClose={() => setCurrentPage(null)}
+        />
       )}
     </main>
   );

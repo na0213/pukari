@@ -46,15 +46,15 @@ export default function BubbleInput({ onAdd, canAdd, totalCount }: BubbleInputPr
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="思いついたことを浮かべる..."
+        placeholder="思いついたことを泡に浮かべる..."
         maxLength={100}
-        aria-label="新しいシャボン玉のテキスト"
+        aria-label="新しいテキスト"
       />
       <button
         className="bubble-input-submit"
         onClick={handleSubmit}
         disabled={!text.trim()}
-        aria-label="シャボン玉を浮かべる"
+        aria-label="浮かべる"
         title={`あと${FREE_BUBBLE_LIMIT - totalCount}個追加できます`}
       >
         ○

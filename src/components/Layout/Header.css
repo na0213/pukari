@@ -106,11 +106,33 @@
   border-bottom: 1px solid rgba(100, 160, 220, 0.1);
 }
 
-.sky-side-menu-title {
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--text-primary);
-  letter-spacing: 0.06em;
+.sky-side-menu-logo-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 12px;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+  transform-origin: left center;
+}
+
+.sky-side-menu-logo-btn:hover,
+.sky-side-menu-logo-btn:focus-visible {
+  transform: scale(1.06);
+}
+
+.sky-side-menu-logo-btn:active {
+  transform: scale(1.03);
+  opacity: 0.88;
+}
+
+.sky-side-menu-logo {
+  display: block;
+  width: auto;
+  height: 80px;
+  max-width: 230px;
+  object-fit: contain;
 }
 
 .sky-side-menu-close {
