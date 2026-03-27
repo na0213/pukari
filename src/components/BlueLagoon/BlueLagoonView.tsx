@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { UseLagoonReturn } from '../../hooks/useLagoon';
 import type { LagoonBubble } from '../../types/bluelagoon';
@@ -61,6 +61,8 @@ export default function BlueLagoonView({ lagoon }: BlueLagoonViewProps) {
   const [isCompact, setIsCompact] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const [showBubbles, setShowBubbles] = useState(prefersReducedMotion);
+  const scrollWrapperRef = useRef<HTMLDivElement | null>(null);
+  const prevOtherCountRef = useRef(0);
 
   // sound から背景設定を取得
   const config = LAGOON_SOUND_CONFIG[sound];
@@ -106,6 +108,23 @@ export default function BlueLagoonView({ lagoon }: BlueLagoonViewProps) {
     return () => window.clearTimeout(timer);
   }, [prefersReducedMotion]);
 
+  useEffect(() => {
+    const wrapper = scrollWrapperRef.current;
+    const hasOverflow = canvasParams.canvasWidthFactor > 1;
+    const grew = otherBubbles.length > prevOtherCountRef.current;
+    prevOtherCountRef.current = otherBubbles.length;
+
+    if (!wrapper || !isCompact || !hasOverflow || !grew) return;
+
+    const maxScrollLeft = wrapper.scrollWidth - wrapper.clientWidth;
+    if (maxScrollLeft <= 0) return;
+
+    wrapper.scrollTo({
+      left: Math.round(maxScrollLeft * 0.35),
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  }, [otherBubbles.length, canvasParams.canvasWidthFactor, isCompact, prefersReducedMotion]);
+
   return (
     <div
       className="lagoon-container"
@@ -120,7 +139,10 @@ export default function BlueLagoonView({ lagoon }: BlueLagoonViewProps) {
       <div className="lagoon-water-shimmer" aria-hidden="true" />
 
       {/* 横スクロールコンテナ */}
-      <div className="lagoon-scroll-wrapper">
+      <div
+        className="lagoon-scroll-wrapper"
+        ref={scrollWrapperRef}
+      >
         <div
           className="lagoon-scroll-canvas"
           style={{ width: canvasParams.widthCss }}

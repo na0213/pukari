@@ -7,7 +7,7 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  touch-action: none;
+  touch-action: auto;
 }
 
 .lagoon-container::before,
@@ -184,6 +184,8 @@
   overflow-y: hidden;
   z-index: 2;
   scrollbar-width: none;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
 }
 
 .lagoon-scroll-wrapper::-webkit-scrollbar {
