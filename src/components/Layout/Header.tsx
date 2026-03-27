@@ -12,6 +12,17 @@ function PrivacyIcon() {
   );
 }
 
+function TermsIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M8 5.5h8" />
+      <path d="M8 9.5h8" />
+      <path d="M8 13.5h5" />
+      <path d="M6.5 3.5h11a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z" />
+    </svg>
+  );
+}
+
 function AboutIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -49,12 +60,13 @@ interface HeaderProps {
   onOpenGuest: () => void;
   onOpenPwa: () => void;
   onOpenPrivacy: () => void;
+  onOpenTerms: () => void;
   onOpenWelcome: () => void;
   auth: UseAuthReturn;
   onSignOut: () => void;
 }
 
-export default function Header({ onOpenAbout, onOpenGuest, onOpenPwa, onOpenPrivacy, onOpenWelcome, auth, onSignOut }: HeaderProps) {
+export default function Header({ onOpenAbout, onOpenGuest, onOpenPwa, onOpenPrivacy, onOpenTerms, onOpenWelcome, auth, onSignOut }: HeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
@@ -250,6 +262,15 @@ export default function Header({ onOpenAbout, onOpenGuest, onOpenPwa, onOpenPriv
                 >
                   <span className="sky-side-menu-icon"><PrivacyIcon /></span>
                   プライバシーポリシー
+                </button>
+              </li>
+              <li>
+                <button
+                  className="sky-side-menu-item"
+                  onClick={() => { close(); onOpenTerms(); }}
+                >
+                  <span className="sky-side-menu-icon"><TermsIcon /></span>
+                  利用規約
                 </button>
               </li>
 

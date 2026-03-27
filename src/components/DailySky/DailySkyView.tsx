@@ -112,16 +112,6 @@ interface BubblePopupProps {
 }
 
 function BubblePopup({ bubble, onClose }: BubblePopupProps) {
-  const completedDate = bubble.completedAt
-    ? new Intl.DateTimeFormat('ja-JP', {
-        timeZone: 'Asia/Tokyo',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(new Date(bubble.completedAt))
-    : null;
-
   return (
     <motion.div
       className="day-popup-overlay"
@@ -142,9 +132,6 @@ function BubblePopup({ bubble, onClose }: BubblePopupProps) {
         <p className="day-popup-text">{bubble.text}</p>
         {bubble.memo && (
           <p className="day-popup-memo">{bubble.memo}</p>
-        )}
-        {completedDate && (
-          <p className="day-popup-date">できた: {completedDate}</p>
         )}
         <button className="day-popup-close" onClick={onClose}>
           とじる
@@ -365,7 +352,6 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
   const [showYearHint, setShowYearHint] = useState(false);
 
   const currentYear = new Date().getFullYear();
-
   useEffect(() => {
     if (activeTab !== 'year') {
       setShowYearHint(false);
@@ -430,7 +416,11 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
       }}
       aria-modal="true"
       role="dialog"
-      aria-label={activeTab === 'today' ? '今日の空' : '今年できたこと'}
+      aria-label={
+        activeTab === 'today'
+          ? '今日の空'
+          : '今年できたこと'
+      }
     >
       {/* ── 上部バー（× ボタン + タブ） ── */}
       <div className="daily-sky-top-bar" onClick={(e) => e.stopPropagation()}>

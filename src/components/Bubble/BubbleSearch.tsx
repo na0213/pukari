@@ -17,10 +17,12 @@ function formatDate(date: Date): string {
 }
 
 export default function BubbleSearch({ bubbles, onSelect, onClose }: BubbleSearchProps) {
-  // 作成日が新しい順に並べる
-  const sorted = [...bubbles].sort(
-    (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-  );
+  // 「今日やる」を先頭、その中で作成日が新しい順
+  const sorted = [...bubbles].sort((a, b) => {
+    const statusDiff = Number(b.status === 'nearby') - Number(a.status === 'nearby');
+    if (statusDiff !== 0) return statusDiff;
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
 
   return (
     <AnimatePresence>

@@ -46,6 +46,7 @@ export default function LagoonEntryModal({ onEnter, onClose }: LagoonEntryModalP
 
         <h2 className="entry-title">集中できそうなときはここへ</h2>
         <p className="entry-sub">他に集中している人がいるかも・・・</p>
+        <p className="entry-sub">「ひとこと」はみんなにも見えるよ<br />退出時に消えます</p>
 
         <input
           ref={inputRef}

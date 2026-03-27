@@ -213,8 +213,14 @@ function fromRow(row: LagoonBubbleRow): LagoonBubble {
 // ── 公開インターフェース ──
 export interface UseLagoonReturn {
   isInLagoon: boolean;
-  enterLagoon: (message: string) => Promise<void>;
+  enterLagoon: (
+    message: string,
+    sourceBubbleId?: string | null,
+    sourceBubbleText?: string | null,
+  ) => Promise<void>;
   exitLagoon: () => Promise<void>;
+  entryBubbleId: string | null;
+  entryBubbleText: string | null;
 
   myBubble: LagoonBubble | null;
   otherBubbles: LagoonBubble[];
@@ -231,6 +237,8 @@ export function useLagoon(): UseLagoonReturn {
   const [isInLagoon, setIsInLagoon] = useState(false);
   const [myBubble, setMyBubble] = useState<LagoonBubble | null>(null);
   const [otherBubbles, setOtherBubbles] = useState<LagoonBubble[]>([]);
+  const [entryBubbleId, setEntryBubbleId] = useState<string | null>(null);
+  const [entryBubbleText, setEntryBubbleText] = useState<string | null>(null);
   const [sound, setSoundState] = useState<LagoonSound>('none');
   const [userId, setUserId] = useState<string | null>(null);
   const [volume, setVolumeState] = useState(() => {
@@ -348,8 +356,14 @@ export function useLagoon(): UseLagoonReturn {
   const participantCount = otherBubbles.length + (myBubble ? 1 : 0);
 
   // ── 入室 ──
-  const enterLagoon = useCallback(async (message: string) => {
+  const enterLagoon = useCallback(async (
+    message: string,
+    sourceBubbleId?: string | null,
+    sourceBubbleText?: string | null,
+  ) => {
     console.log('supabase client:', supabase ? 'connected' : 'null');
+    setEntryBubbleId(sourceBubbleId ?? null);
+    setEntryBubbleText(sourceBubbleText ?? null);
 
     if (!supabase) {
       // Supabase 未接続 → ローカルモード
@@ -414,6 +428,8 @@ export function useLagoon(): UseLagoonReturn {
     setMyBubble(null);
     setOtherBubbles([]);
     setIsInLagoon(false);
+    setEntryBubbleId(null);
+    setEntryBubbleText(null);
     setSoundState('none');
   }, [userId, stopAudio]);
 
@@ -438,6 +454,8 @@ export function useLagoon(): UseLagoonReturn {
     isInLagoon,
     enterLagoon,
     exitLagoon,
+    entryBubbleId,
+    entryBubbleText,
     myBubble,
     otherBubbles,
     participantCount,

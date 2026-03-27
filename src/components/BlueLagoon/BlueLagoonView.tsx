@@ -47,17 +47,20 @@ function getCanvasParams(count: number): {
 
 interface BlueLagoonViewProps {
   lagoon: UseLagoonReturn;
+  onMarkBubbleDone: (id: string) => void;
+  onMarkBubbleDoneToday: (id: string) => void;
 }
 
-export default function BlueLagoonView({ lagoon }: BlueLagoonViewProps) {
+export default function BlueLagoonView({ lagoon, onMarkBubbleDone, onMarkBubbleDoneToday }: BlueLagoonViewProps) {
   const {
     myBubble, otherBubbles, participantCount,
-    sound,
+    sound, entryBubbleId, entryBubbleText,
     setSound, volume, setVolume, exitLagoon,
   } = lagoon;
 
   const [showSoundPicker, setShowSoundPicker] = useState(false);
   const [selectedBubble, setSelectedBubble] = useState<LagoonBubble | null>(null);
+  const [showExitChoices, setShowExitChoices] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const [showBubbles, setShowBubbles] = useState(prefersReducedMotion);
@@ -228,7 +231,13 @@ export default function BlueLagoonView({ lagoon }: BlueLagoonViewProps) {
 
         <button
           className="lagoon-ctrl-btn lagoon-ctrl-btn--exit"
-          onClick={exitLagoon}
+          onClick={() => {
+            if (entryBubbleId) {
+              setShowExitChoices(true);
+              return;
+            }
+            void exitLagoon();
+          }}
           aria-label="ブルーラグーンを退出する"
         >
           <ExitIcon color={buttonColor.exit} />
@@ -266,6 +275,44 @@ export default function BlueLagoonView({ lagoon }: BlueLagoonViewProps) {
               onClick={() => setSelectedBubble(null)}
             >
               閉じる
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showExitChoices && entryBubbleId && (
+        <div className="lagoon-comment-overlay" onClick={() => setShowExitChoices(false)}>
+          <div className="lagoon-comment-card" onClick={(e) => e.stopPropagation()}>
+            <p className="lagoon-comment-label">おつかれさま！</p>
+            <p className="lagoon-comment-text">{entryBubbleText ?? ''}</p>
+            <button
+              type="button"
+              className="lagoon-comment-close"
+              onClick={() => {
+                onMarkBubbleDone(entryBubbleId);
+                setShowExitChoices(false);
+                void exitLagoon();
+              }}
+            >
+              できた！
+            </button>
+            <button
+              type="button"
+              className="lagoon-comment-close"
+              onClick={() => {
+                onMarkBubbleDoneToday(entryBubbleId);
+                setShowExitChoices(false);
+                void exitLagoon();
+              }}
+            >
+              今日はここまで
+            </button>
+            <button
+              type="button"
+              className="lagoon-comment-close"
+              onClick={() => setShowExitChoices(false)}
+            >
+              戻る
             </button>
           </div>
         </div>

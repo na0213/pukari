@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FREE_BUBBLE_LIMIT } from '../../lib/constants';
 import './BubbleInput.css';
 
@@ -6,11 +6,26 @@ interface BubbleInputProps {
   onAdd: (text: string) => void;
   canAdd: boolean;
   totalCount: number;
+  focusSignal?: number;
+  placeholder?: string;
+  ctaLabel?: string;
 }
 
-export default function BubbleInput({ onAdd, canAdd, totalCount }: BubbleInputProps) {
+export default function BubbleInput({
+  onAdd,
+  canAdd,
+  totalCount,
+  focusSignal = 0,
+  placeholder = '思いついたことを泡に浮かべる...',
+  ctaLabel,
+}: BubbleInputProps) {
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (focusSignal <= 0) return;
+    inputRef.current?.focus();
+  }, [focusSignal]);
 
   const handleSubmit = () => {
     const trimmed = text.trim();
@@ -46,7 +61,7 @@ export default function BubbleInput({ onAdd, canAdd, totalCount }: BubbleInputPr
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="思いついたことを泡に浮かべる..."
+        placeholder={placeholder}
         maxLength={100}
         aria-label="新しいテキスト"
       />
@@ -56,8 +71,9 @@ export default function BubbleInput({ onAdd, canAdd, totalCount }: BubbleInputPr
         disabled={!text.trim()}
         aria-label="浮かべる"
         title={`あと${FREE_BUBBLE_LIMIT - totalCount}個追加できます`}
+        data-has-label={ctaLabel ? 'true' : 'false'}
       >
-        ○
+        {ctaLabel ?? '○'}
       </button>
     </div>
   );

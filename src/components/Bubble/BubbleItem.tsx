@@ -24,7 +24,7 @@ function seededRandom(seed: string): number {
 
 function getBubbleSize(totalCount: number, bubble: Bubble): number {
   const base = getBaseSize(totalCount);
-  const keepMultiplier = bubble.status === 'nearby' ? 1.3 : 1.0;
+  const keepMultiplier = bubble.status === 'nearby' ? 1.42 : 1.0;
   return Math.round(base * bubble.sizeFactor * keepMultiplier);
 }
 

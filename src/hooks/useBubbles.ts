@@ -136,6 +136,7 @@ export interface UseBubblesReturn {
   unkeepBubble: (id: string) => void;     // nearby → floating
   markDone: (id: string) => void;         // できた！（completed に + done ログ）
   markDoneToday: (id: string) => void;    // 今日はここまで（done ログのみ、状態維持）
+  updateText: (id: string, text: string) => void;
   updateMemo: (id: string, memo: string) => void;
   updateColor: (id: string, color: BubbleColorKey | null) => void;
   updateRepeat: (id: string, repeat: boolean) => void;
@@ -315,6 +316,18 @@ export function useBubbles(): UseBubblesReturn {
     );
   };
 
+  const updateText = (id: string, text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setBubbles((prev) =>
+      prev.map((b) => {
+        if (b.id !== id) return b;
+        syncBubbleUpdate(id, { text: trimmed });
+        return { ...b, text: trimmed };
+      })
+    );
+  };
+
   const updateColor = (id: string, color: BubbleColorKey | null) => {
     setBubbles((prev) =>
       prev.map((b) => {
@@ -388,6 +401,7 @@ export function useBubbles(): UseBubblesReturn {
     unkeepBubble,
     markDone,
     markDoneToday,
+    updateText,
     updateMemo,
     updateColor,
     updateRepeat,

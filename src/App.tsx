@@ -7,11 +7,13 @@ import AboutPage from './components/Pages/AboutPage';
 import GuestGuidePage from './components/Pages/GuestGuidePage';
 import PwaGuidePage from './components/Pages/PwaGuidePage';
 import PrivacyPolicyPage from './components/Pages/PrivacyPolicyPage';
+import TermsOfServicePage from './components/Pages/TermsOfServicePage';
 import WelcomeScreen from './components/Auth/WelcomeScreen';
 import { useAuth } from './hooks/useAuth';
 import { useLagoon } from './hooks/useLagoon';
+import { useBubbles } from './hooks/useBubbles';
 
-type CurrentPage = null | 'about' | 'guest' | 'pwa' | 'privacy' | 'welcome';
+type CurrentPage = null | 'about' | 'guest' | 'pwa' | 'privacy' | 'terms' | 'welcome';
 
 function LoadingScreen() {
   return (
@@ -53,6 +55,7 @@ function LoadingScreen() {
 function App() {
   const auth = useAuth();
   const lagoon = useLagoon();
+  const bubbles = useBubbles();
   const [currentPage, setCurrentPage] = useState<CurrentPage>(null);
   const { isLoading, user } = auth;
 
@@ -69,9 +72,13 @@ function App() {
         <WelcomeScreen
           auth={auth}
           onOpenPrivacy={() => setCurrentPage('privacy')}
+          onOpenTerms={() => setCurrentPage('terms')}
         />
         {currentPage === 'privacy' && (
           <PrivacyPolicyPage onClose={() => setCurrentPage(null)} />
+        )}
+        {currentPage === 'terms' && (
+          <TermsOfServicePage onClose={() => setCurrentPage(null)} />
         )}
       </>
     );
@@ -80,14 +87,20 @@ function App() {
   return (
     <main>
       {lagoon.isInLagoon ? (
-        <BlueLagoonView lagoon={lagoon} />
+        <BlueLagoonView
+          lagoon={lagoon}
+          onMarkBubbleDone={bubbles.markDone}
+          onMarkBubbleDoneToday={bubbles.markDoneToday}
+        />
       ) : (
       <SkyView
+          bubblesState={bubbles}
           onEnterLagoon={lagoon.enterLagoon}
           onOpenAbout={() => setCurrentPage('about')}
           onOpenGuest={() => setCurrentPage('guest')}
           onOpenPwa={() => setCurrentPage('pwa')}
           onOpenPrivacy={() => setCurrentPage('privacy')}
+          onOpenTerms={() => setCurrentPage('terms')}
           onOpenWelcome={() => setCurrentPage('welcome')}
           auth={auth}
           onSignOut={handleSignOut}
@@ -112,10 +125,14 @@ function App() {
       {currentPage === 'privacy' && (
         <PrivacyPolicyPage onClose={() => setCurrentPage(null)} />
       )}
+      {currentPage === 'terms' && (
+        <TermsOfServicePage onClose={() => setCurrentPage(null)} />
+      )}
       {currentPage === 'welcome' && (
         <WelcomeScreen
           auth={auth}
           onOpenPrivacy={() => setCurrentPage('privacy')}
+          onOpenTerms={() => setCurrentPage('terms')}
           onClose={() => setCurrentPage(null)}
         />
       )}

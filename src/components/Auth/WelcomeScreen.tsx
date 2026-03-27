@@ -72,17 +72,17 @@ const FEATURE_ITEMS = [
   },
   {
     title: 'メモを追加する',
-    text: '追記したいことはメモに残せます',
+    text: '追記したいことはメモに。日々やりたいことは繰り返しに。カスタマイズはさまざま。',
     imgSrc: '/images/welcome-feature-2.png',
   },
   {
     title: 'ゆるく記録する',
-    text: '日々やりたいことは繰り返しに /  できた！を押すたび、空色が朝→夕方→夜へ。',
+    text: 'できた！を押すたび、空色が朝→夕方→夜へ。',
     imgSrc: '/images/welcome-feature-3.png',
   },
   {
     title: 'できたことの振り返り',
-    text: '今日のできたことは、夜空に星となって浮かびます。',
+    text: '今日のできたことは、空に星となって浮かびます。',
     imgSrc: '/images/welcome-feature-4.png',
   },
   {
@@ -144,17 +144,30 @@ function WelcomeActions({
 interface WelcomeScreenProps {
   auth: UseAuthReturn;
   onOpenPrivacy: () => void;
+  onOpenTerms: () => void;
   onClose?: () => void;
 }
 
-export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeScreenProps) {
+export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClose }: WelcomeScreenProps) {
   const [logoError, setLogoError] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [showGoogleConsent, setShowGoogleConsent] = useState(false);
+  const [selectedFeatureImage, setSelectedFeatureImage] = useState<{ src: string; alt: string; title: string } | null>(null);
+  const [openingFeatureImage, setOpeningFeatureImage] = useState<string | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
+  const featureImageTimerRef = useRef<number | null>(null);
   const featureCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const featureImgRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const currentSlide = SLIDES[slideIndex];
+
+  useEffect(() => {
+    return () => {
+      if (featureImageTimerRef.current !== null) {
+        window.clearTimeout(featureImageTimerRef.current);
+      }
+    };
+  }, []);
 
   // 全カードを最大高さに揃えて、画像スロットをその2倍に設定
   useEffect(() => {
@@ -320,19 +333,9 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeS
               </button>
             </div>
 
-            {/* ドットナビゲーション */}
-            <div className="welcome-slide-dots" role="tablist" aria-label="スライドナビゲーション">
-              {SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className={`welcome-slide-dot${i === slideIndex ? ' welcome-slide-dot--active' : ''}`}
-                  onClick={() => setSlideIndex(i)}
-                  role="tab"
-                  aria-selected={i === slideIndex}
-                  aria-label={`スライド ${i + 1}`}
-                />
-              ))}
+            {/* スライドコメント */}
+            <div className="welcome-slide-caption" aria-live="polite">
+              <span className="welcome-slide-caption-label">{currentSlide.sub}</span>
             </div>
           </div>
         </section>
@@ -362,13 +365,34 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeS
                   className="welcome-feature-img-slot"
                   ref={(el) => { featureImgRefs.current[i] = el; }}
                 >
-                  <img
-                    src={item.imgSrc}
-                    alt={`${item.title}の画面イメージ`}
-                    className="welcome-feature-img"
-                    onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0'; }}
-                    draggable={false}
-                  />
+                  <button
+                    type="button"
+                    className={`welcome-feature-img-slot-button${openingFeatureImage === item.imgSrc ? ' welcome-feature-img-slot-button--opening' : ''}`}
+                    onClick={() => {
+                      if (featureImageTimerRef.current !== null) {
+                        window.clearTimeout(featureImageTimerRef.current);
+                      }
+                      setOpeningFeatureImage(item.imgSrc);
+                      featureImageTimerRef.current = window.setTimeout(() => {
+                        setSelectedFeatureImage({
+                          src: item.imgSrc,
+                          alt: `${item.title}の全体画像`,
+                          title: item.title,
+                        });
+                        setOpeningFeatureImage(null);
+                        featureImageTimerRef.current = null;
+                      }, 140);
+                    }}
+                    aria-label={`${item.title}の全体画像を見る`}
+                  >
+                    <img
+                      src={item.imgSrc}
+                      alt={`${item.title}の画面イメージ`}
+                      className="welcome-feature-img"
+                      onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0'; }}
+                      draggable={false}
+                    />
+                  </button>
                 </div>
               </li>
             ))}
@@ -394,7 +418,7 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeS
           <div className="welcome-background">
             <div className="welcome-background-head">
               <span className="welcome-story-kicker">開発した背景</span>
-              <h3 className="welcome-background-title">Pukariは、こんな気持ちから生まれました。</h3>
+              <h3 className="welcome-background-title">Pukariは、こんな気持ちから生まれました</h3>
             </div>
 
             <div className="welcome-background-body">
@@ -403,8 +427,8 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeS
                 どれも試したけど、結局続かなかった私。
               </p>
               <p>
-                「習慣化は大事」と聞くたびに焦るけど、<br />
-                本当はもっとゆるっと過ごしてもいいよね、と思ったのがすべてのはじまりです。
+                「習慣化は大事」とは聞くけど、<br />
+                もっとゆるっと過ごしてもいいよね、と思ったことがきっかけです。
               </p>
               <p>
                 手帳は1月で真っ白、<br />
@@ -426,8 +450,8 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeS
               </p>
               <p>
                 そんな、<br />
-                がんばらなくても続けられるアプリを、自分自身のために作りました。<br />
-                Pukariが、あなたの頭の中のごちゃごちゃを<br />
+                がんばらなくても続けられるアプリを作りました。<br />
+                Pukariが、頭の中のごちゃごちゃを<br />
                 優しく、泡のように包めますように。
               </p>
               <div className="welcome-background-author">
@@ -444,6 +468,22 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeS
               </div>
             </div>
           </div>
+
+          <button
+            type="button"
+            className="welcome-privacy-link"
+            onClick={onOpenPrivacy}
+          >
+            プライバシーポリシーを見る
+          </button>
+
+          <button
+            type="button"
+            className="welcome-privacy-link"
+            onClick={onOpenTerms}
+          >
+            利用規約を見る
+          </button>
         </section>
 
       </div>
@@ -455,6 +495,39 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onClose }: WelcomeS
           onClose={() => setShowGoogleConsent(false)}
           onOpenPrivacy={onOpenPrivacy}
         />
+      )}
+
+      {selectedFeatureImage && (
+        <div
+          className="welcome-image-modal"
+          onClick={() => setSelectedFeatureImage(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedFeatureImage.title}
+        >
+          <div
+            className="welcome-image-modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="welcome-image-modal-close"
+              onClick={() => setSelectedFeatureImage(null)}
+              aria-label="閉じる"
+            >
+              ×
+            </button>
+            <img
+              src={selectedFeatureImage.src}
+              alt={selectedFeatureImage.alt}
+              className="welcome-image-modal-img"
+              draggable={false}
+            />
+            <p className="welcome-image-modal-caption">
+              {selectedFeatureImage.title}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
