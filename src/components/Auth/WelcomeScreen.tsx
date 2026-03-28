@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import type { UseAuthReturn } from '../../hooks/useAuth';
 import GoogleConsentModal from './GoogleConsentModal';
+import PrivacyPolicyPage from '../Pages/PrivacyPolicyPage';
+import TermsOfServicePage from '../Pages/TermsOfServicePage';
 import './WelcomeScreen.css';
 
 // Google ブランドアイコン
@@ -61,7 +63,7 @@ const SLIDES = [
 const FEATURE_ITEMS = [
   {
     title: '思いつきを浮かべる',
-    text: 'アイデアもタスクも、まずは浮かべる',
+    text: 'アイデアもタスクも、まずは浮かべる。最大100個まで',
     imgSrc: '/images/welcome-feature-1.png',
   },
   {
@@ -75,8 +77,8 @@ const FEATURE_ITEMS = [
     imgSrc: '/images/welcome-feature-4.png',
   },
   {
-    title: 'みんなともくもくタイムへ',
-    text: '集中できそうなときは、集中できる空間へ。他の人も浮かんでいるかも',
+    title: 'もくもく集中タイムへ',
+    text: '集中できそうなときは、もくもく空間へ。他の人も入室しているかも。みんな泡になって静かに集中。',
     imgSrc: '/images/welcome-feature-5.png',
   },
   {
@@ -132,15 +134,14 @@ function WelcomeActions({
 
 interface WelcomeScreenProps {
   auth: UseAuthReturn;
-  onOpenPrivacy: () => void;
-  onOpenTerms: () => void;
   onClose?: () => void;
 }
 
-export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClose }: WelcomeScreenProps) {
+export default function WelcomeScreen({ auth, onClose }: WelcomeScreenProps) {
   const [logoError, setLogoError] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [showGoogleConsent, setShowGoogleConsent] = useState(false);
+  const [subPage, setSubPage] = useState<'privacy' | 'terms' | null>(null);
   const [selectedFeatureImage, setSelectedFeatureImage] = useState<{ src: string; alt: string; title: string } | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -200,6 +201,7 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
             <h1 className="welcome-title">アイデアもTodoも。<br />泡に浮かべるだけの<br />メモアプリ</h1>
             <p className="welcome-lead">
               思いついたことを、気軽に泡にして浮かべるだけ。<br />
+              空に浮かべられる泡は100個まで。空がいっぱいになったら少し整理して。<br />
               できたことは「できた！」で記録すると、空の色が少しずつ変わる。<br />
               1年後、意外とやってた自分に気づける。
             </p>
@@ -405,7 +407,7 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
           <button
             type="button"
             className="welcome-privacy-link"
-            onClick={onOpenPrivacy}
+            onClick={() => setSubPage('privacy')}
           >
             プライバシーポリシーを見る
           </button>
@@ -413,7 +415,7 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
           <button
             type="button"
             className="welcome-privacy-link"
-            onClick={onOpenTerms}
+            onClick={() => setSubPage('terms')}
           >
             利用規約を見る
           </button>
@@ -426,7 +428,8 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
           mode="signin"
           auth={auth}
           onClose={() => setShowGoogleConsent(false)}
-          onOpenPrivacy={onOpenPrivacy}
+          onOpenPrivacy={() => setSubPage('privacy')}
+          onOpenTerms={() => setSubPage('terms')}
         />
       )}
 
@@ -462,6 +465,9 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
           </div>
         </div>
       )}
+
+      {subPage === 'privacy' && <PrivacyPolicyPage variant="modal" onClose={() => setSubPage(null)} />}
+      {subPage === 'terms' && <TermsOfServicePage variant="modal" onClose={() => setSubPage(null)} />}
     </div>
   );
 }

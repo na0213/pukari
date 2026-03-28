@@ -46,8 +46,8 @@ export default function LagoonEntryModal({ onEnter, onClose }: LagoonEntryModalP
 
         <h2 className="entry-title">ここは集中したい人が集まる場所</h2>
         <p className="entry-sub">
-          みんなが泡になって浮かんでいます。<br />
-          だれかが静かに頑張っているかも・・・
+          みんなが泡になって浮かぶよ<br />
+          だれかが静かに頑張っているかも
         </p>
         <p className="entry-sub">「ひとこと」はみんなにも見えるよ<br />退出時に消えます</p>
 

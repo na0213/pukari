@@ -2,9 +2,10 @@ import './PrivacyPolicyPage.css';
 
 interface PrivacyPolicyPageProps {
   onClose: () => void;
+  variant?: 'page' | 'modal';
 }
 
-export default function PrivacyPolicyPage({ onClose }: PrivacyPolicyPageProps) {
+export default function PrivacyPolicyPage({ onClose, variant = 'page' }: PrivacyPolicyPageProps) {
   return (
     <div className="privacy-overlay" onClick={onClose} aria-label="プライバシーポリシー">
       <div
@@ -13,14 +14,24 @@ export default function PrivacyPolicyPage({ onClose }: PrivacyPolicyPageProps) {
         role="dialog"
         aria-label="プライバシーポリシー"
       >
-        <div className="privacy-header">
-          <button
-            className="privacy-back"
-            onClick={onClose}
-            aria-label="戻る"
-          >
-            ← 戻る
-          </button>
+        <div className={`privacy-header ${variant === 'modal' ? 'privacy-header--modal' : ''}`}>
+          {variant === 'page' ? (
+            <button
+              className="privacy-back"
+              onClick={onClose}
+              aria-label="戻る"
+            >
+              ← 戻る
+            </button>
+          ) : (
+            <button
+              className="privacy-close"
+              onClick={onClose}
+              aria-label="閉じる"
+            >
+              ×
+            </button>
+          )}
         </div>
 
         <div className="privacy-body">

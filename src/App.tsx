@@ -71,8 +71,6 @@ function App() {
       <>
         <WelcomeScreen
           auth={auth}
-          onOpenPrivacy={() => setCurrentPage('privacy')}
-          onOpenTerms={() => setCurrentPage('terms')}
         />
         {currentPage === 'privacy' && (
           <PrivacyPolicyPage onClose={() => setCurrentPage(null)} />
@@ -131,8 +129,6 @@ function App() {
       {currentPage === 'welcome' && (
         <WelcomeScreen
           auth={auth}
-          onOpenPrivacy={() => setCurrentPage('privacy')}
-          onOpenTerms={() => setCurrentPage('terms')}
           onClose={() => setCurrentPage(null)}
         />
       )}

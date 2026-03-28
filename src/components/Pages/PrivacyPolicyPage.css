@@ -2,7 +2,7 @@
 .privacy-overlay {
   position: fixed;
   inset: 0;
-  z-index: 400;
+  z-index: 600;
   background: rgba(10, 30, 60, 0.35);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
@@ -42,6 +42,13 @@
   padding: 16px 20px 0;
 }
 
+/* ── ヘッダー（モーダル用） ── */
+.privacy-header--modal {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px 0;
+}
+
 .privacy-back {
   display: inline-flex;
   align-items: center;
@@ -56,6 +63,23 @@
 }
 
 .privacy-back:active {
+  opacity: 0.6;
+}
+
+.privacy-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+}
+
+.privacy-close:active {
   opacity: 0.6;
 }
 

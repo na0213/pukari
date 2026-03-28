@@ -19,9 +19,10 @@ interface GoogleConsentModalProps {
   auth: UseAuthReturn;
   onClose: () => void;
   onOpenPrivacy: () => void;
+  onOpenTerms?: () => void;
 }
 
-export default function GoogleConsentModal({ mode, auth, onClose, onOpenPrivacy }: GoogleConsentModalProps) {
+export default function GoogleConsentModal({ mode, auth, onClose, onOpenPrivacy, onOpenTerms }: GoogleConsentModalProps) {
   const [isBusy, setIsBusy] = useState(false);
 
   const handleContinue = async () => {
@@ -74,13 +75,17 @@ export default function GoogleConsentModal({ mode, auth, onClose, onOpenPrivacy 
           </>
         )}
 
-        <button
-          className="gconsent-privacy-link"
-          onClick={onOpenPrivacy}
-          type="button"
-        >
-          プライバシーポリシーを読む
-        </button>
+        <div className="gconsent-terms-notice">
+          「Googleで続ける」を押すことで、<br />
+          {onOpenTerms && (
+            <>
+              <button type="button" className="gconsent-link-text" onClick={onOpenTerms}>利用規約</button>
+              と
+            </>
+          )}
+          <button type="button" className="gconsent-link-text" onClick={onOpenPrivacy}>プライバシーポリシー</button>
+          に<br />同意したものとみなされます。
+        </div>
 
         <div className="gconsent-actions">
           <button

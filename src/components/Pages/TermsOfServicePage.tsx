@@ -2,9 +2,10 @@ import './PrivacyPolicyPage.css';
 
 interface TermsOfServicePageProps {
   onClose: () => void;
+  variant?: 'page' | 'modal';
 }
 
-export default function TermsOfServicePage({ onClose }: TermsOfServicePageProps) {
+export default function TermsOfServicePage({ onClose, variant = 'page' }: TermsOfServicePageProps) {
   return (
     <div className="privacy-overlay" onClick={onClose} aria-label="利用規約">
       <div
@@ -13,14 +14,24 @@ export default function TermsOfServicePage({ onClose }: TermsOfServicePageProps)
         role="dialog"
         aria-label="利用規約"
       >
-        <div className="privacy-header">
-          <button
-            className="privacy-back"
-            onClick={onClose}
-            aria-label="戻る"
-          >
-            ← 戻る
-          </button>
+        <div className={`privacy-header ${variant === 'modal' ? 'privacy-header--modal' : ''}`}>
+          {variant === 'page' ? (
+            <button
+              className="privacy-back"
+              onClick={onClose}
+              aria-label="戻る"
+            >
+              ← 戻る
+            </button>
+          ) : (
+            <button
+              className="privacy-close"
+              onClick={onClose}
+              aria-label="閉じる"
+            >
+              ×
+            </button>
+          )}
         </div>
 
         <div className="privacy-body">

@@ -86,6 +86,11 @@ export default function AboutPage({ onClose, onOpenWelcome }: AboutPageProps) {
             もくもく場では、気持ちを切り替えて集中もできる。
           </p>
 
+          <p className="about-description">
+            空に浮かべられる泡は、最大100個まで。<br />
+            空がいっぱいになったら、泡を「できた！」で完了させて、<br />
+            また新しい思考を迎え入れましょう。
+          </p>
 
           <p className="about-description">
             Pukariは、そんな場所です。
