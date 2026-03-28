@@ -25,13 +25,7 @@ function LockIcon() {
   );
 }
 
-function SparkIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3l1.9 5.7L19.6 11l-5.7 1.9L12 18.6l-1.9-5.7L4.4 11l5.7-2.3L12 3z" />
-    </svg>
-  );
-}
+
 
 // ── スクリーンショットスライド ──
 const SLIDES = [
