@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { Bubble } from '../../types/bubble';
 import type { BubbleColorKey } from '../../lib/bubbleColors';
@@ -56,6 +56,15 @@ export default function BubbleDetail({
   );
   const [repeatEnabled, setRepeatEnabled] = useState(bubble.repeat ?? false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const memoRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (memoRef.current) {
+      memoRef.current.style.height = 'auto';
+      // borderの2px分を足してスクロールバーが出ないようにする
+      memoRef.current.style.height = `${memoRef.current.scrollHeight + 2}px`;
+    }
+  }, [memo]);
 
   useEffect(() => {
     setText(bubble.text);
@@ -128,6 +137,7 @@ export default function BubbleDetail({
 
         {/* メモ欄 */}
         <textarea
+          ref={memoRef}
           className="bubble-detail-memo"
           value={memo}
           onChange={(e) => setMemo(e.target.value)}

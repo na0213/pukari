@@ -81,7 +81,7 @@
   font-size: 16px;
   color: var(--text-primary);
   font-family: inherit;
-  resize: vertical;
+  resize: none;
   max-height: 200px;
   outline: none;
   line-height: 1.5;
