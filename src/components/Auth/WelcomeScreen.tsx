@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import type { UseAuthReturn } from '../../hooks/useAuth';
 import GoogleConsentModal from './GoogleConsentModal';
 import './WelcomeScreen.css';
@@ -7,10 +7,10 @@ import './WelcomeScreen.css';
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
     </svg>
   );
 }
@@ -76,13 +76,8 @@ const FEATURE_ITEMS = [
     imgSrc: '/images/welcome-feature-2.png',
   },
   {
-    title: 'ゆるく記録する',
-    text: 'できた！を押すたび、空色が朝→夕方→夜へ。',
-    imgSrc: '/images/welcome-feature-3.png',
-  },
-  {
-    title: 'できたことの振り返り',
-    text: '今日のできたことは、空に星となって浮かびます。',
+    title: 'ゆるく記録して振り返る',
+    text: 'できた！を押すたび、空色が変わる。今日のできたことは、空に星となって浮かびます。',
     imgSrc: '/images/welcome-feature-4.png',
   },
   {
@@ -153,46 +148,11 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [showGoogleConsent, setShowGoogleConsent] = useState(false);
   const [selectedFeatureImage, setSelectedFeatureImage] = useState<{ src: string; alt: string; title: string } | null>(null);
-  const [openingFeatureImage, setOpeningFeatureImage] = useState<string | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
-  const featureImageTimerRef = useRef<number | null>(null);
-  const featureCardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const featureImgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const currentSlide = SLIDES[slideIndex];
 
-  useEffect(() => {
-    return () => {
-      if (featureImageTimerRef.current !== null) {
-        window.clearTimeout(featureImageTimerRef.current);
-      }
-    };
-  }, []);
 
-  // 全カードを最大高さに揃えて、画像スロットをその2倍に設定
-  useEffect(() => {
-    const update = () => {
-      const cards = featureCardRefs.current.filter(Boolean) as HTMLDivElement[];
-
-      // いったんリセットして自然な高さを取得
-      cards.forEach((card) => { card.style.height = ''; });
-
-      // 最大高さを求める
-      const maxH = Math.max(...cards.map((card) => card.offsetHeight));
-
-      // 全カードを最大高さに揃える
-      cards.forEach((card) => { card.style.height = `${maxH}px`; });
-
-      // 画像スロットをその2倍に設定
-      featureImgRefs.current.forEach((slot) => {
-        if (slot) slot.style.height = `${maxH * 2}px`;
-      });
-    };
-
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -347,44 +307,21 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
           </div>
 
           <ul className="welcome-feature-list">
-            {FEATURE_ITEMS.map((item, i) => (
+            {FEATURE_ITEMS.map((item) => (
               <li key={item.title} className="welcome-feature-list-item">
-                {/* テキストカード */}
-                <div
-                  className="welcome-feature-item"
-                  ref={(el) => { featureCardRefs.current[i] = el; }}
+                <button
+                  type="button"
+                  className="welcome-feature-card"
+                  onClick={() =>
+                    setSelectedFeatureImage({
+                      src: item.imgSrc,
+                      alt: `${item.title}の全体画像`,
+                      title: item.title,
+                    })
+                  }
+                  aria-label={`${item.title}の全体画像を見る`}
                 >
-                  <span className="welcome-feature-icon" aria-hidden="true"><SparkIcon /></span>
-                  <div className="welcome-feature-body">
-                    <p className="welcome-feature-title">{item.title}</p>
-                    <p className="welcome-feature-text">{item.text}</p>
-                  </div>
-                </div>
-                {/* 画像スロット（高さはJS で 2×カード高） */}
-                <div
-                  className="welcome-feature-img-slot"
-                  ref={(el) => { featureImgRefs.current[i] = el; }}
-                >
-                  <button
-                    type="button"
-                    className={`welcome-feature-img-slot-button${openingFeatureImage === item.imgSrc ? ' welcome-feature-img-slot-button--opening' : ''}`}
-                    onClick={() => {
-                      if (featureImageTimerRef.current !== null) {
-                        window.clearTimeout(featureImageTimerRef.current);
-                      }
-                      setOpeningFeatureImage(item.imgSrc);
-                      featureImageTimerRef.current = window.setTimeout(() => {
-                        setSelectedFeatureImage({
-                          src: item.imgSrc,
-                          alt: `${item.title}の全体画像`,
-                          title: item.title,
-                        });
-                        setOpeningFeatureImage(null);
-                        featureImageTimerRef.current = null;
-                      }, 140);
-                    }}
-                    aria-label={`${item.title}の全体画像を見る`}
-                  >
+                  <div className="welcome-feature-card-img-wrap">
                     <img
                       src={item.imgSrc}
                       alt={`${item.title}の画面イメージ`}
@@ -392,8 +329,14 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
                       onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0'; }}
                       draggable={false}
                     />
-                  </button>
-                </div>
+                  </div>
+                  <div className="welcome-feature-card-body">
+                    <div className="welcome-feature-card-header">
+                      <p className="welcome-feature-title">{item.title}</p>
+                    </div>
+                    <p className="welcome-feature-text">{item.text}</p>
+                  </div>
+                </button>
               </li>
             ))}
           </ul>
@@ -427,10 +370,6 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
                 どれも試したけど、結局続かなかった私。
               </p>
               <p>
-                「習慣化は大事」とは聞くけど、<br />
-                もっとゆるっと過ごしてもいいよね、と思ったことがきっかけです。
-              </p>
-              <p>
                 手帳は1月で真っ白、<br />
                 ジャーナリングは3ページで終了、<br />
                 Todoはどれも数日で消える。<br />
@@ -443,14 +382,14 @@ export default function WelcomeScreen({ auth, onOpenPrivacy, onOpenTerms, onClos
                 と思える場所が欲しくなりました。
               </p>
               <p>
-                アイデアでも、タスクでも、気になることでも。<br />
+                アイデアでも、タスクでも、目標でも。<br />
                 時間に追われず、やりたいと思ったときにゆるく振り返れて、<br />
                 集中したいときはちゃんと集中できる。<br />
                 そしてあとで「今年も意外とやってたな」と微笑める。
               </p>
               <p>
                 そんな、<br />
-                がんばらなくても続けられるアプリを作りました。<br />
+                がんばらなくても続けられるアプリがほしくて作りました。<br />
                 Pukariが、頭の中のごちゃごちゃを<br />
                 優しく、泡のように包めますように。
               </p>

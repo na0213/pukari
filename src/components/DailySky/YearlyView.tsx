@@ -32,6 +32,12 @@ const MONTH_LABELS = [
 export default function YearlyView({ bubbles, logs, year, onRemove, showHint = false }: YearlyViewProps) {
   const currentMonth = new Date().getMonth(); // 0-indexed
   const [selectedBubbleId, setSelectedBubbleId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const closeDetail = () => {
+    setSelectedBubbleId(null);
+    setConfirmDelete(false);
+  };
 
   const monthlyMap = buildMonthlyMap(logs, year);
   const hintBubbleId = useMemo(() => {
@@ -88,7 +94,7 @@ export default function YearlyView({ bubbles, logs, year, onRemove, showHint = f
             <tr>
               <th className="ym-th ym-th-name" />
               {MONTH_LABELS.map((label, i) => (
-                <th key={i} className="ym-th ym-th-month">
+                <th key={i} className={`ym-th ym-th-month${i === currentMonth ? ' ym-th-month--current' : ''}`}>
                   {label}
                 </th>
               ))}
@@ -114,13 +120,11 @@ export default function YearlyView({ bubbles, logs, year, onRemove, showHint = f
                     const isFuture = i > currentMonth;
                     const hasDone = doneMonths[i] ?? false;
                     return (
-                      <td key={i} className="ym-td ym-td-dot">
-                        {!isFuture && (
-                          <div
-                            className={`ym-dot ${hasDone ? 'ym-dot--active' : ''}`}
-                            aria-label={hasDone ? 'できた' : ''}
-                          />
-                        )}
+                      <td key={i} className={`ym-td ym-td-dot${i === currentMonth ? ' ym-td-dot--current-col' : ''}`}>
+                        <div
+                          className={`ym-dot${hasDone ? ' ym-dot--active' : isFuture ? ' ym-dot--future' : ''}`}
+                          aria-label={hasDone ? 'できた' : ''}
+                        />
                       </td>
                     );
                   })}
@@ -135,7 +139,7 @@ export default function YearlyView({ bubbles, logs, year, onRemove, showHint = f
         {selectedBubble && (
           <motion.div
             className="ym-detail-overlay"
-            onClick={() => setSelectedBubbleId(null)}
+            onClick={closeDetail}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -153,16 +157,56 @@ export default function YearlyView({ bubbles, logs, year, onRemove, showHint = f
                 {selectedBubble.text}
               </p>
               {onRemove && (
-                <button
-                  type="button"
-                  className="ym-detail-delete"
-                  onClick={() => {
-                    onRemove(selectedBubble.id);
-                    setSelectedBubbleId(null);
-                  }}
-                >
-                  消す
-                </button>
+                <AnimatePresence mode="wait">
+                  {confirmDelete ? (
+                    <motion.div
+                      key="confirm"
+                      className="ym-detail-confirm"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <span className="ym-detail-confirm-label">本当に消しますか？</span>
+                      <div className="ym-detail-confirm-actions">
+                        <button
+                          type="button"
+                          className="ym-detail-cancel"
+                          onClick={() => setConfirmDelete(false)}
+                        >
+                          やっぱりやめる
+                        </button>
+                        <button
+                          type="button"
+                          className="ym-detail-delete"
+                          onClick={() => {
+                            onRemove(selectedBubble.id);
+                            closeDetail();
+                          }}
+                        >
+                          消す
+                        </button>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="action"
+                      className="ym-detail-actions"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <button
+                        type="button"
+                        className="ym-detail-delete"
+                        onClick={() => setConfirmDelete(true)}
+                      >
+                        消す
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               )}
             </motion.div>
           </motion.div>

@@ -21,7 +21,6 @@ function LagoonIcon() {
 interface BubbleDetailProps {
   bubble: Bubble;
   isDoneToday: boolean;
-  showOnboardingGuide?: boolean;
   onClose: () => void;
   onFocusInLagoon: (id: string) => void;
   onKeep: (id: string) => void;
@@ -38,7 +37,6 @@ interface BubbleDetailProps {
 export default function BubbleDetail({
   bubble,
   isDoneToday,
-  showOnboardingGuide = false,
   onClose,
   onFocusInLagoon,
   onKeep,
@@ -58,7 +56,6 @@ export default function BubbleDetail({
   );
   const [repeatEnabled, setRepeatEnabled] = useState(bubble.repeat ?? false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [onboardingStep, setOnboardingStep] = useState<'memo' | 'done'>('memo');
 
   useEffect(() => {
     setText(bubble.text);
@@ -66,7 +63,6 @@ export default function BubbleDetail({
     setSelectedColor(normalizeBubbleColor(bubble.color) ?? null);
     setRepeatEnabled(bubble.repeat ?? false);
     setConfirmDelete(false);
-    setOnboardingStep('memo');
   }, [bubble.id, bubble.memo, bubble.color, bubble.repeat]);
 
   const handleTextBlur = () => {
@@ -130,40 +126,11 @@ export default function BubbleDetail({
           aria-label="メモのタイトル"
         />
 
-        {showOnboardingGuide && onboardingStep === 'memo' && (
-          <div className="bubble-detail-guide bubble-detail-guide--memo" aria-live="polite">
-            <p className="bubble-detail-guide-title">次はここ</p>
-            <p className="bubble-detail-guide-text">
-              必要ならここに補足メモを残せます。書かなくても大丈夫です。
-            </p>
-            <button
-              type="button"
-              className="bubble-detail-guide-action"
-              onClick={() => setOnboardingStep('done')}
-            >
-              メモはあとで
-            </button>
-          </div>
-        )}
-
         {/* メモ欄 */}
         <textarea
-          className={[
-            'bubble-detail-memo',
-            showOnboardingGuide && onboardingStep === 'memo' ? 'bubble-detail-memo--guided' : '',
-          ].join(' ')}
+          className="bubble-detail-memo"
           value={memo}
-          onChange={(e) => {
-            setMemo(e.target.value);
-            if (showOnboardingGuide && onboardingStep === 'memo') {
-              setOnboardingStep('done');
-            }
-          }}
-          onFocus={() => {
-            if (showOnboardingGuide && onboardingStep === 'memo') {
-              setOnboardingStep('done');
-            }
-          }}
+          onChange={(e) => setMemo(e.target.value)}
           onBlur={handleMemoBlur}
           placeholder="メモを追加..."
           rows={2}
@@ -220,98 +187,83 @@ export default function BubbleDetail({
 
         {/* アクション */}
         {showMainButtons && (
-        <div className="bubble-detail-actions">
-          {showOnboardingGuide && onboardingStep === 'done' && (
-            <div className="bubble-detail-guide bubble-detail-guide--done" aria-live="polite">
-              <p className="bubble-detail-guide-title">最後にこれ</p>
-              <p className="bubble-detail-guide-text">
-                今回は下の「できた！」を押して、記録が空に残る流れを試してみてください。
-              </p>
+          <div className="bubble-detail-actions">
+            <div className="bubble-detail-chip-row">
+              <button
+                type="button"
+                className={[
+                  'bubble-detail-toggle',
+                  isTodayBubble ? 'bubble-detail-toggle--active bubble-detail-toggle--today' : '',
+                ].join(' ')}
+                onClick={() => {
+                  if (isTodayBubble) onUnkeep(bubble.id);
+                  else onKeep(bubble.id);
+                }}
+                aria-pressed={isTodayBubble}
+                aria-label="今日やる"
+              >
+                <span className="bubble-detail-toggle-icon" aria-hidden="true">
+                  ◎
+                </span>
+                今日やる
+              </button>
+
+              <button
+                type="button"
+                className={[
+                  'bubble-detail-toggle',
+                  repeatEnabled ? 'bubble-detail-toggle--active' : '',
+                ].join(' ')}
+                onClick={() => {
+                  const next = !repeatEnabled;
+                  setRepeatEnabled(next);
+                  onUpdateRepeat(bubble.id, next);
+                }}
+                aria-pressed={repeatEnabled}
+                aria-label="繰り返す"
+              >
+                <span className="bubble-detail-toggle-icon" aria-hidden="true">
+                  ∞
+                </span>
+                繰り返す
+              </button>
             </div>
-          )}
 
-          <div className="bubble-detail-chip-row">
-            <button
-              type="button"
-              className={[
-                'bubble-detail-toggle',
-                isTodayBubble ? 'bubble-detail-toggle--active bubble-detail-toggle--today' : '',
-                showOnboardingGuide ? 'bubble-detail-secondary--muted' : '',
-              ].join(' ')}
-              onClick={() => {
-                if (isTodayBubble) onUnkeep(bubble.id);
-                else onKeep(bubble.id);
-              }}
-              aria-pressed={isTodayBubble}
-              aria-label="今日やる"
-            >
-              <span className="bubble-detail-toggle-icon" aria-hidden="true">
-                ◎
-              </span>
-              今日やる
-            </button>
+            {repeatEnabled && (
+              <p className="bubble-detail-repeat-note">
+                できた後も泡を残します
+              </p>
+            )}
 
             <button
-              type="button"
-              className={[
-                'bubble-detail-toggle',
-                repeatEnabled ? 'bubble-detail-toggle--active' : '',
-                showOnboardingGuide ? 'bubble-detail-secondary--muted' : '',
-              ].join(' ')}
+              className="bubble-detail-btn bubble-detail-btn--done"
               onClick={() => {
-                const next = !repeatEnabled;
-                setRepeatEnabled(next);
-                onUpdateRepeat(bubble.id, next);
-              }}
-              aria-pressed={repeatEnabled}
-              aria-label="繰り返す"
-            >
-              <span className="bubble-detail-toggle-icon" aria-hidden="true">
-                ↻
-              </span>
-              繰り返す
-            </button>
-          </div>
-
-          {repeatEnabled && (
-            <p className="bubble-detail-repeat-note">
-              できた後も泡を残します
-            </p>
-          )}
-
-          <button
-            className={[
-              'bubble-detail-btn',
-              'bubble-detail-btn--done',
-              showOnboardingGuide && onboardingStep === 'done' ? 'bubble-detail-btn--guided' : '',
-            ].join(' ')}
-            onClick={() => {
-              if (repeatEnabled) {
-                onMarkDoneToday(bubble.id);
+                if (repeatEnabled) {
+                  onMarkDoneToday(bubble.id);
+                  onClose();
+                  return;
+                }
+                onMarkDone(bubble.id);
                 onClose();
-                return;
-              }
-              onMarkDone(bubble.id);
-              onClose();
-            }}
-            disabled={isDoneToday}
-            aria-disabled={isDoneToday}
-          >
-            {isDoneToday ? '✓ 今日は記録済み' : 'できた！'}
-          </button>
+              }}
+              disabled={isDoneToday}
+              aria-disabled={isDoneToday}
+            >
+              {isDoneToday ? '✓ 今日は記録済み' : 'できた！'}
+            </button>
 
-          <button
-            className="bubble-detail-btn bubble-detail-btn--lagoon"
-            onClick={() => onFocusInLagoon(bubble.id)}
-          >
-            <span className="bubble-detail-btn-icon" aria-hidden="true">
-              <LagoonIcon />
-            </span>
-            <span className="bubble-detail-btn-copy">
-              <span className="bubble-detail-btn-title">もくもく集中部屋へ</span>
-              <span className="bubble-detail-btn-subtitle">このメモに取り組むために行ってみる</span>
-            </span>
-          </button>
+            <button
+              className="bubble-detail-btn bubble-detail-btn--lagoon"
+              onClick={() => onFocusInLagoon(bubble.id)}
+            >
+              <span className="bubble-detail-btn-icon" aria-hidden="true">
+                <LagoonIcon />
+              </span>
+              <span className="bubble-detail-btn-copy">
+                <span className="bubble-detail-btn-title">もくもく集中部屋へ</span>
+                <span className="bubble-detail-btn-subtitle">このメモに取り組むために行ってみる</span>
+              </span>
+            </button>
           </div>
         )}
         {/* 削除エリア */}

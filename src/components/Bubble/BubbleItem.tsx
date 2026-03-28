@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { TargetAndTransition } from 'framer-motion';
 import type { Bubble } from '../../types/bubble';
@@ -45,6 +45,8 @@ interface BubbleItemProps {
   totalCount: number;             // activeBubbles.length（サイズ計算用）
   position: { x: number; y: number };
   onTap: (id: string) => void;
+  onDragEnd?: (id: string, deltaXPct: number, deltaYPct: number) => void;
+  containerRef?: React.RefObject<HTMLDivElement | null>;
   exitAnimation?: TargetAndTransition;
   isHighlighted?: boolean;        // 検索で選択された直後の一時ハイライト
   isFocused?: boolean;            // 検索で中央に寄せた泡
@@ -55,10 +57,15 @@ export default function BubbleItem({
   totalCount,
   position,
   onTap,
+  onDragEnd,
+  containerRef,
   exitAnimation,
   isHighlighted = false,
   isFocused = false,
 }: BubbleItemProps) {
+  const isDragging = useRef(false);
+  const dragStartPos = useRef({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
   const floatDuration = useMemo(
     () => 3 + seededRandom(`${bubble.id}:duration`) * 3,
     [bubble.id]
@@ -101,7 +108,7 @@ export default function BubbleItem({
 
   return (
     <motion.div
-      className={className}
+      className={`${className}${dragging ? ' bubble-item--dragging' : ''}`}
       style={cssVars}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
@@ -112,7 +119,38 @@ export default function BubbleItem({
         damping: 18,
         delay: floatDelay * 0.3,
       }}
-      onClick={() => onTap(bubble.id)}
+      drag={!!onDragEnd}
+      dragMomentum={false}
+      dragElastic={0.08}
+      dragConstraints={containerRef ?? false}
+      onDragStart={(_e, info) => {
+        isDragging.current = false;
+        dragStartPos.current = { x: info.point.x, y: info.point.y };
+        setDragging(true);
+      }}
+      onDrag={(_e, info) => {
+        const dx = Math.abs(info.point.x - dragStartPos.current.x);
+        const dy = Math.abs(info.point.y - dragStartPos.current.y);
+        if (dx > 4 || dy > 4) isDragging.current = true;
+      }}
+      onDragEnd={(_e, info) => {
+        setDragging(false);
+        // ドラッグ直後のクリック発火を防ぐため、少し遅延させてフラグを戻す
+        setTimeout(() => {
+          isDragging.current = false;
+        }, 50);
+
+        if (!onDragEnd) return;
+        const container = containerRef?.current;
+        if (!container) return;
+        const rect = container.getBoundingClientRect();
+        const pctX = (info.offset.x / rect.width) * 100;
+        const pctY = (info.offset.y / rect.height) * 100;
+        onDragEnd(bubble.id, pctX, pctY);
+      }}
+      onClick={() => {
+        if (!isDragging.current) onTap(bubble.id);
+      }}
       aria-label={`シャボン玉: ${bubble.text}、状態: ${bubble.status}`}
       role="button"
       tabIndex={0}
@@ -126,42 +164,7 @@ export default function BubbleItem({
         </span>
       )}
       {bubble.repeat && (
-        <span className="bubble-repeat-badge" aria-hidden="true">
-          <svg viewBox="0 0 24 24" className="bubble-repeat-icon" focusable="false" aria-hidden="true">
-            <path
-              d="M20 6v5h-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M4 18v-5h5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M18.5 9.5A7 7 0 0 0 7 7.5L4 13"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M5.5 14.5A7 7 0 0 0 17 16.5L20 11"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
+        <span className="bubble-repeat-infinity" aria-hidden="true">∞</span>
       )}
     </motion.div>
   );

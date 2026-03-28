@@ -1,0 +1,528 @@
+/* ════════════════════════════════════════════
+   LagoonTimer — 星空・オーロラテーマ タイマー
+════════════════════════════════════════════ */
+
+/* ── オーバーレイ（設定パネル用） ── */
+.ltimer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 310;
+}
+
+/* ── 設定パネル（ボトムシート） ── */
+.ltimer-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 320;
+  background: rgba(8, 16, 42, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(100, 200, 255, 0.15);
+  border-radius: 24px 24px 0 0;
+  padding: 22px 24px calc(44px + env(safe-area-inset-bottom, 0px));
+  animation: ltimer-slide-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes ltimer-slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+/* ── ヘッダー ── */
+.ltimer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ltimer-title {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(200, 230, 255, 0.7);
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ltimer-title-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  color: rgba(150, 220, 255, 0.85);
+}
+
+.ltimer-title-icon svg {
+  display: block;
+}
+
+.ltimer-close-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(100, 200, 255, 0.1);
+  color: rgba(200, 230, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ltimer-divider {
+  height: 1px;
+  background: rgba(100, 200, 255, 0.12);
+  margin: 16px 0 18px;
+}
+
+/* ── セクションラベル ── */
+.ltimer-section-label {
+  margin: 0 0 12px;
+  font-size: 11px;
+  color: rgba(150, 200, 255, 0.6);
+  letter-spacing: 0.1em;
+}
+
+/* ── プリセットボタン群 ── */
+.ltimer-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ltimer-preset-btn {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 180, 255, 0.2);
+  background: rgba(15, 30, 70, 0.6);
+  color: rgba(200, 230, 255, 0.75);
+  font-size: 16px;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.ltimer-preset-unit {
+  font-size: 11px;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.ltimer-preset-btn--active {
+  border-color: rgba(80, 200, 255, 0.6);
+  background: rgba(40, 120, 220, 0.22);
+  color: rgba(140, 220, 255, 1);
+  box-shadow: 0 0 10px rgba(80, 180, 255, 0.2);
+}
+
+.ltimer-preset-btn:active {
+  background: rgba(40, 100, 200, 0.35);
+}
+
+/* ── カスタム入力 ── */
+.ltimer-custom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.ltimer-custom-input {
+  width: 90px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 180, 255, 0.2);
+  background: rgba(15, 30, 70, 0.5);
+  color: rgba(220, 240, 255, 0.9);
+  font-size: 15px;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 0.15s;
+  /* number input の矢印を非表示 */
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.ltimer-custom-input::-webkit-outer-spin-button,
+.ltimer-custom-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.ltimer-custom-input:focus {
+  border-color: rgba(80, 180, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(80, 180, 255, 0.12);
+}
+
+.ltimer-custom-input::placeholder {
+  color: rgba(150, 190, 255, 0.35);
+}
+
+.ltimer-custom-label {
+  font-size: 13px;
+  color: rgba(150, 200, 255, 0.6);
+}
+
+/* ── プレビュー（設定画面の時刻表示） ── */
+.ltimer-preview {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.ltimer-preview-time {
+  font-size: 42px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: rgba(200, 240, 255, 0.9);
+  font-weight: 300;
+  text-shadow: 0 0 18px rgba(100, 200, 255, 0.4);
+}
+
+/* ── スタートボタン ── */
+.ltimer-start-btn {
+  position: relative;
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(80, 200, 255, 0.25);
+  background: linear-gradient(135deg, rgba(20, 50, 120, 0.8), rgba(60, 20, 100, 0.8));
+  color: rgba(210, 240, 255, 0.95);
+  font-size: 16px;
+  font-family: inherit;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 0.2s;
+}
+
+.ltimer-start-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* オーロラ光芒 */
+.ltimer-start-btn-aurora {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0, 255, 180, 0.08) 30%,
+    rgba(80, 160, 255, 0.12) 50%,
+    rgba(160, 80, 255, 0.08) 70%,
+    transparent 100%
+  );
+  animation: ltimer-aurora-sweep 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ltimer-aurora-sweep {
+  0%, 100% { opacity: 0.5; transform: translateX(-20%); }
+  50%       { opacity: 1;   transform: translateX(20%); }
+}
+
+/* ════════════════════════════════════════════
+   タイマー表示（running / paused / done）
+════════════════════════════════════════════ */
+.ltimer-display {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  pointer-events: none; /* ボタン以外はタップ透過 */
+}
+
+/* ── リング ── */
+.ltimer-ring-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
+}
+
+.ltimer-ring {
+  width: 200px;
+  height: 200px;
+  filter: drop-shadow(0 0 18px rgba(80, 180, 255, 0.25));
+}
+
+.ltimer-ring-progress {
+  transition: stroke-dashoffset 1s linear, stroke 1.5s ease;
+}
+
+/* ── 中央テキスト ── */
+.ltimer-center-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.ltimer-time-display {
+  font-size: 36px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: rgba(220, 245, 255, 0.97);
+  font-weight: 300;
+  text-shadow: 0 0 24px rgba(100, 200, 255, 0.55);
+  transition: opacity 0.3s;
+}
+
+.ltimer-time-display--paused {
+  opacity: 0.55;
+  animation: ltimer-blink 1.5s ease-in-out infinite;
+}
+
+@keyframes ltimer-blink {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.25; }
+}
+
+.ltimer-pause-label {
+  font-size: 10px;
+  color: rgba(150, 210, 255, 0.6);
+  letter-spacing: 0.1em;
+}
+
+/* ── 完了演出: 充完了に使った古いdoneスタイル得 => 消去 ── */
+
+/* ── コントロール（running / paused 時） ── */
+.ltimer-controls {
+  display: flex;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.ltimer-ctrl-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(100, 180, 255, 0.18);
+  background: rgba(8, 16, 45, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: rgba(190, 230, 255, 0.88);
+  font-size: 20px;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 72px;
+  transition: background 0.15s;
+}
+
+.ltimer-ctrl-btn span {
+  font-size: 11px;
+  color: rgba(160, 210, 255, 0.7);
+  letter-spacing: 0.03em;
+}
+
+.ltimer-ctrl-btn:active {
+  background: rgba(20, 40, 90, 0.9);
+}
+
+.ltimer-ctrl-btn--reset span,
+.ltimer-ctrl-btn--reset {
+  color: rgba(150, 180, 255, 0.7) !important;
+}
+
+.ltimer-ctrl-btn--again {
+  border-color: rgba(255, 200, 80, 0.2);
+  color: rgba(255, 230, 120, 0.9) !important;
+}
+
+.ltimer-ctrl-btn--again span {
+  color: rgba(255, 210, 100, 0.7) !important;
+}
+
+.ltimer-ctrl-btn--exit {
+  border-color: rgba(100, 180, 255, 0.15);
+}
+
+/* ── 流れ星エフェクト ── */
+.ltimer-shooting-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 49;
+  overflow: hidden;
+}
+
+.ltimer-shooting-star {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 60px;
+  background: linear-gradient(to bottom, rgba(255, 230, 120, 0.9), transparent);
+  border-radius: 1px;
+  transform-origin: top center;
+  transform: rotate(var(--angle)) translateY(0);
+  animation: ltimer-shoot var(--delay, 0.3s) ease-out 0.1s forwards,
+             ltimer-shoot-out 0.8s ease-out calc(var(--delay, 0.3s) + 0.1s) forwards;
+  opacity: 0;
+}
+
+@keyframes ltimer-shoot {
+  from { opacity: 0;   transform: rotate(var(--angle)) translateY(0)    scaleY(0.3); }
+  to   { opacity: 0.9; transform: rotate(var(--angle)) translateY(60px) scaleY(1); }
+}
+
+@keyframes ltimer-shoot-out {
+  from { opacity: 0.9; transform: rotate(var(--angle)) translateY(60px)  scaleY(1); }
+  to   { opacity: 0;   transform: rotate(var(--angle)) translateY(160px) scaleY(0.5); }
+}
+
+/* ── done 状態の特別演出 ── */
+.ltimer-display--done .ltimer-ring {
+  animation: ltimer-ring-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes ltimer-ring-pulse {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(180, 230, 255, 0.4)) drop-shadow(0 0 50px rgba(120, 200, 255, 0.2)); }
+  50%       { filter: drop-shadow(0 0 40px rgba(210, 245, 255, 0.8)) drop-shadow(0 0 90px rgba(150, 215, 255, 0.5)); }
+}
+
+/* ── 光の輪（RippleRing）── */
+.ltimer-ripple-rings {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.ltimer-ripple-ring {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(180, 230, 255, 0.65);
+  animation: ltimer-ripple 2.4s ease-out infinite;
+  animation-delay: var(--ripple-delay, 0s);
+  opacity: 0;
+}
+
+@keyframes ltimer-ripple {
+  0%   { transform: scale(0.85); opacity: 0.8; }
+  70%  { opacity: 0.15; }
+  100% { transform: scale(1.7);  opacity: 0; }
+}
+
+/* ── CSS グロー星 ── */
+.ltimer-glow-star {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ltimer-glow-star-appear 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ltimer-glow-star-appear {
+  from { opacity: 0; transform: scale(0.3); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.ltimer-glow-halo {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 235, 255, 0.55) 0%, transparent 70%);
+  animation: ltimer-halo-breathe 2s ease-in-out infinite;
+}
+
+.ltimer-glow-halo--outer {
+  width: 110px;
+  height: 110px;
+  opacity: 0.45;
+}
+
+.ltimer-glow-halo--mid {
+  width: 66px;
+  height: 66px;
+  background: radial-gradient(circle, rgba(220, 245, 255, 0.72) 0%, transparent 65%);
+  animation-delay: 0.3s;
+}
+
+@keyframes ltimer-halo-breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%       { transform: scale(1.18); opacity: 1; }
+}
+
+.ltimer-glow-spike {
+  position: absolute;
+  background: linear-gradient(to right, transparent, rgba(210, 240, 255, 0.82), transparent);
+  border-radius: 999px;
+  animation: ltimer-spike-breathe 2s ease-in-out infinite;
+}
+
+.ltimer-glow-spike--h {
+  width: 84px;
+  height: 2px;
+  animation-delay: 0.1s;
+}
+
+.ltimer-glow-spike--v {
+  width: 2px;
+  height: 84px;
+  background: linear-gradient(to bottom, transparent, rgba(210, 240, 255, 0.82), transparent);
+  animation-delay: 0.25s;
+}
+
+@keyframes ltimer-spike-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.15); }
+}
+
+.ltimer-glow-core {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(240, 250, 255, 0.98);
+  box-shadow:
+    0 0 6px 3px rgba(200, 235, 255, 0.9),
+    0 0 18px 8px rgba(160, 215, 255, 0.65),
+    0 0 36px 18px rgba(120, 195, 255, 0.35);
+  animation: ltimer-core-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes ltimer-core-pulse {
+  0%, 100% { transform: scale(1);
+    box-shadow: 0 0 6px 3px rgba(200,235,255,0.9), 0 0 18px 8px rgba(160,215,255,0.65), 0 0 36px 18px rgba(120,195,255,0.35); }
+  50%       { transform: scale(1.35);
+    box-shadow: 0 0 10px 5px rgba(220,245,255,1), 0 0 26px 13px rgba(175,220,255,0.85), 0 0 55px 26px rgba(135,200,255,0.55); }
+}
+
+/* ── アクセシビリティ: モーション軽減 ── */
+@media (prefers-reduced-motion: reduce) {
+  .ltimer-panel { animation: none; }
+  .ltimer-start-btn-aurora { animation: none; }
+  .ltimer-time-display--paused { animation: none; opacity: 0.55; }
+  .ltimer-ring-progress { transition: none; }
+  .ltimer-ripple-ring { animation: none; }
+  .ltimer-glow-star { animation: none; }
+  .ltimer-glow-halo { animation: none; opacity: 0.6; }
+  .ltimer-glow-spike { animation: none; opacity: 0.7; }
+  .ltimer-glow-core { animation: none; }
+  .ltimer-display--done .ltimer-ring { animation: none; }
+}

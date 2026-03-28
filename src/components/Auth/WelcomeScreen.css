@@ -6,7 +6,7 @@
   background:
     radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.16) 0 10px, transparent 11px),
     radial-gradient(circle at 74% 22%, rgba(255, 255, 255, 0.14) 0 14px, transparent 15px),
-  linear-gradient(180deg, #d9ecf8 0%, #eef6fb 48%, #d3e7f7 100%);
+    linear-gradient(180deg, #d9ecf8 0%, #eef6fb 48%, #d3e7f7 100%);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -76,8 +76,15 @@
 }
 
 @keyframes welcome-bubble-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(0, -12px, 0) scale(1.04); }
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 0) scale(1.04);
+  }
 }
 
 .welcome-content {
@@ -529,69 +536,55 @@
 
 .welcome-feature-list {
   display: grid;
-  gap: 10px;
+  gap: 14px;
 }
 
-/* li は縦並びコンテナ */
+/* li はただのコンテナ */
 .welcome-feature-list-item {
+  display: contents;
+}
+
+/* ── 統合カード（画像 + テキスト）── */
+.welcome-feature-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-/* テキストカード */
-.welcome-feature-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.58);
-  box-shadow: 0 10px 24px rgba(96, 129, 163, 0.08);
-  text-align: left;
-}
-
-/* 画像スロット（高さはJSでカード高×2を設定） */
-.welcome-feature-img-slot {
-  position: relative;
-  width: 100%;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 0 8px 20px rgba(96, 129, 163, 0.07);
-  /* JSで高さが設定されるまでの仮の高さ */
-  min-height: 120px;
-}
-
-.welcome-feature-img-slot-button {
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: none;
-  background: transparent;
-  display: block;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 10px 24px rgba(96, 129, 163, 0.1),
+    0 3px 8px rgba(96, 129, 163, 0.06);
+  text-align: left;
   cursor: zoom-in;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.18s ease, filter 0.18s ease;
-  transform-origin: center center;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  width: 100%;
+  padding: 0;
+  font-family: inherit;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.58);
 }
 
-.welcome-feature-img-slot-button:focus-visible {
-  outline: 2px solid rgba(100, 140, 190, 0.35);
-  outline-offset: -2px;
+.welcome-feature-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow:
+    0 18px 36px rgba(96, 129, 163, 0.16),
+    0 6px 14px rgba(96, 129, 163, 0.1);
 }
 
-.welcome-feature-img-slot-button:hover,
-.welcome-feature-img-slot-button:focus-visible,
-.welcome-feature-img-slot-button--opening {
-  transform: scale(1.03);
-  filter: saturate(1.02) contrast(1.02);
+.welcome-feature-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 6px 16px rgba(96, 129, 163, 0.08);
 }
 
-.welcome-feature-img-slot-button:active {
-  transform: scale(1.05);
+/* 画像エリア */
+.welcome-feature-card-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: rgba(220, 235, 248, 0.6);
 }
 
 .welcome-feature-img {
@@ -600,33 +593,27 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center center;
+  object-position: top center;
   display: block;
-  transition: opacity 0.2s, transform 0.18s ease;
-  transform: scale(1);
+  transition: transform 0.28s ease, opacity 0.2s;
 }
 
-.welcome-feature-img-slot-button:hover .welcome-feature-img,
-.welcome-feature-img-slot-button:focus-visible .welcome-feature-img,
-.welcome-feature-img-slot-button--opening .welcome-feature-img,
-.welcome-feature-img-slot-button:active .welcome-feature-img {
+.welcome-feature-card:hover .welcome-feature-img {
   transform: scale(1.04);
 }
 
-.welcome-feature-icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  flex: 0 0 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(70, 102, 150, 0.9);
-  margin-top: 1px;
+/* テキストエリア */
+.welcome-feature-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px 14px;
 }
 
-.welcome-feature-icon svg {
-  display: block;
+.welcome-feature-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .welcome-feature-body {
@@ -634,22 +621,29 @@
 }
 
 .welcome-feature-title {
-  margin: 0 0 3px;
+  margin: 0;
   font-size: 13px;
   font-weight: 700;
   color: rgba(49, 66, 92, 0.92);
 }
 
 .welcome-feature-text {
-  margin: 0;
+  margin: 2px 0 0;
   font-size: 12px;
   line-height: 1.65;
   color: rgba(70, 87, 111, 0.8);
 }
 
 @keyframes welcome-preview-float {
-  0%, 100% { transform: translate3d(0, 0, 0) translate(-50%, -12%); }
-  50% { transform: translate3d(0, -7px, 0) translate(-50%, -12%); }
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) translate(-50%, -12%);
+  }
+
+  50% {
+    transform: translate3d(0, -7px, 0) translate(-50%, -12%);
+  }
 }
 
 /* ── セキュリティ説明 ── */
@@ -880,7 +874,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.welcome-privacy-link + .welcome-privacy-link {
+.welcome-privacy-link+.welcome-privacy-link {
   margin-top: 0;
 }
 
@@ -985,6 +979,7 @@
 
   .welcome-feature-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
   }
 
   .welcome-story-bottom {

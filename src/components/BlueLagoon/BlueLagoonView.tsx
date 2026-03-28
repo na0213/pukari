@@ -5,6 +5,7 @@ import type { LagoonBubble } from '../../types/bluelagoon';
 import { LAGOON_SOUND_CONFIG } from '../../lib/constants';
 import LagoonBubbleItem from './LagoonBubbleItem';
 import SoundPicker from './SoundPicker';
+import LagoonTimer, { TimerIcon } from './LagoonTimer';
 import './BlueLagoonView.css';
 
 function SoundIcon({ color }: { color: string }) {
@@ -59,6 +60,12 @@ export default function BlueLagoonView({ lagoon, onMarkBubbleDone, onMarkBubbleD
   } = lagoon;
 
   const [showSoundPicker, setShowSoundPicker] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
+  // 集中時間の蔗積（複数セッションをまたいで蜕積）
+  const [baseFocusSec, setBaseFocusSec] = useState(0);    // 過去のセッションの経過秒合計
+  const [sessionSec, setSessionSec] = useState(0);        // 今のセッションの経過秒
+  const MAX_FOCUS_SEC = 60 * 60;                          // 60分で最大
+  const focusGlow = Math.min(1, (baseFocusSec + sessionSec) / MAX_FOCUS_SEC);
   const [selectedBubble, setSelectedBubble] = useState<LagoonBubble | null>(null);
   const [showExitChoices, setShowExitChoices] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
@@ -182,6 +189,7 @@ export default function BlueLagoonView({ lagoon, onMarkBubbleDone, onMarkBubbleD
                   ownSize={canvasParams.ownSize}
                   otherSize={canvasParams.otherSize}
                   canvasWidthFactor={canvasParams.canvasWidthFactor}
+                  focusGlow={focusGlow}
                   onClick={() => setSelectedBubble(myBubble)}
                 />
               )}
@@ -222,11 +230,25 @@ export default function BlueLagoonView({ lagoon, onMarkBubbleDone, onMarkBubbleD
       <div className="lagoon-controls">
         <button
           className="lagoon-ctrl-btn"
-          onClick={() => setShowSoundPicker((prev) => !prev)}
+          onClick={() => {
+            setShowSoundPicker((prev) => !prev);
+          }}
           aria-label="サウンド設定"
         >
           <SoundIcon color={buttonColor.sound} />
           <span>サウンド</span>
+        </button>
+
+        <button
+          className={`lagoon-ctrl-btn ${showTimer ? 'lagoon-ctrl-btn--timer-active' : ''}`}
+          onClick={() => {
+            setShowTimer((prev) => !prev);
+            setShowSoundPicker(false);
+          }}
+          aria-label="タイマー設定"
+        >
+          <TimerIcon color={showTimer ? '#7ee8fa' : '#B8CDE6'} />
+          <span>タイマー</span>
         </button>
 
         <button
@@ -255,6 +277,19 @@ export default function BlueLagoonView({ lagoon, onMarkBubbleDone, onMarkBubbleD
           }}
           onVolumeChange={setVolume}
           onClose={() => setShowSoundPicker(false)}
+        />
+      )}
+
+      {/* タイマー */}
+      {showTimer && (
+        <LagoonTimer
+          onClose={() => {
+            // 退出時に今のセッションを蜕積に込む
+            setBaseFocusSec((prev) => Math.min(MAX_FOCUS_SEC, prev + sessionSec));
+            setSessionSec(0);
+            setShowTimer(false);
+          }}
+          onElapsedSeconds={(secs) => setSessionSec(secs)}
         />
       )}
 

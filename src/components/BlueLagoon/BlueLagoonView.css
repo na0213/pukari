@@ -270,22 +270,6 @@
 }
 
 /* ソロバナー */
-.lagoon-solo-badge {
-  position: fixed;
-  top: 20px;
-  right: 16px;
-  font-size: 11px;
-  color: rgba(200, 220, 255, 0.55);
-  letter-spacing: 0.05em;
-  padding: 4px 10px;
-  background: rgba(0, 10, 30, 0.35);
-  border-radius: 20px;
-  border: 1px solid rgba(100, 150, 255, 0.1);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 10;
-}
-
 /* ── 下部コントロール ── */
 .lagoon-controls {
   position: fixed;
@@ -345,6 +329,20 @@
   color: rgba(180, 200, 255, 0.6);
 }
 
+/* タイマーボタン アクティブ状態 */
+.lagoon-ctrl-btn--timer-active {
+  border-color: rgba(100, 220, 255, 0.35);
+  background: rgba(20, 60, 130, 0.55);
+  box-shadow: 0 0 12px rgba(80, 200, 255, 0.18);
+}
+
+.lagoon-ctrl-btn--timer-active span {
+  color: rgba(120, 230, 255, 0.9);
+}
+
+/* ════════════════════════════════════════════
+   タイマー
+════════════════════════════════════════════ */
 /* ════════════════════════════════════════════
    コメントモーダル
 ════════════════════════════════════════════ */
@@ -417,5 +415,18 @@
   }
   .lagoon-participants-dot {
     animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .lagoon-controls {
+    gap: 10px;
+    padding-inline: 14px;
+  }
+
+  .lagoon-ctrl-btn {
+    min-width: 0;
+    flex: 1 1 0;
+    padding-inline: 12px;
   }
 }

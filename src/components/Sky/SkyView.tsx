@@ -16,11 +16,6 @@ import type { UseBubblesReturn } from '../../hooks/useBubbles';
 import type { FooterActiveItem } from '../Layout/Footer';
 import './SkyView.css';
 
-const ONBOARDING_DONE_KEY = 'pukari-onboarding-done';
-const ONBOARDING_CELEBRATE_DISMISSED_KEY = 'pukari-onboarding-celebrate-dismissed';
-
-type OnboardingStage = 'idle' | 'create' | 'complete' | 'celebrate';
-
 // ── 星のデータ ──
 interface StarData {
   id: number; x: number; y: number;
@@ -181,6 +176,9 @@ export default function SkyView({ bubblesState, onEnterLagoon, onOpenAbout, onOp
   const skyPhase = useSkyColor(todayDoneCount);
   const { getPosition, positionMap } = usePositionMap();
 
+  // ドラッグによる位置上書き（id → {x, y} in %）
+  const [dragOverrides, setDragOverrides] = useState<Map<string, { x: number; y: number }>>(new Map());
+
   // UI状態
   const [showJournal, setShowJournal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -189,19 +187,7 @@ export default function SkyView({ bubblesState, onEnterLagoon, onOpenAbout, onOp
   const [selectedBubbleId, setSelectedBubbleId] = useState<string | null>(null);
   const [highlightedBubbleId, setHighlightedBubbleId] = useState<string | null>(null);
   const [focusedBubbleId, setFocusedBubbleId] = useState<string | null>(null);
-  const [inputFocusSignal, setInputFocusSignal] = useState(0);
-  const [onboardingDone, setOnboardingDone] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    try {
-      return window.localStorage.getItem(ONBOARDING_DONE_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
-  const [showCelebrateHint, setShowCelebrateHint] = useState(false);
   const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const prevActiveCountRef = useRef(activeBubbles.length);
-  const prevLogCountRef = useRef(logs.length);
 
   // exit アニメーション中の泡
   const [exitingBubbles, setExitingBubbles] = useState<
@@ -341,12 +327,33 @@ export default function SkyView({ bubblesState, onEnterLagoon, onOpenAbout, onOp
   const activePositions: { x: number; y: number }[] = [];
   const positionedMap = new Map<string, { bubble: Bubble; pos: { x: number; y: number } }>();
   layoutBubbles.forEach((bubble) => {
-    const pos = focusedBubbleId === bubble.id
+    const basePos = focusedBubbleId === bubble.id
       ? { x: 50, y: 42 }
       : getPosition(bubble.id, activePositions, ACTIVE_RANGE, bubble, displayBubbles.length);
+    const override = dragOverrides.get(bubble.id);
+    const pos = override
+      ? {
+          x: Math.min(95, Math.max(2, override.x)),
+          y: Math.min(90, Math.max(2, override.y)),
+        }
+      : basePos;
     activePositions.push(pos);
     positionedMap.set(bubble.id, { bubble, pos });
   });
+
+  // ドラッグ終了: ベース位置 + delta を上書き保存
+  const handleBubbleDragEnd = (id: string, deltaXPct: number, deltaYPct: number) => {
+    const current = positionedMap.get(id)?.pos ?? { x: 50, y: 42 };
+    const newX = Math.min(95, Math.max(2, current.x + deltaXPct));
+    const newY = Math.min(90, Math.max(2, current.y + deltaYPct));
+    // positionMapも更新して次回レンダリングのベース位置にする
+    positionMap.current.set(id, { x: newX, y: newY });
+    setDragOverrides((prev) => {
+      const next = new Map(prev);
+      next.set(id, { x: newX, y: newY });
+      return next;
+    });
+  };
 
   const positionedBubbles = displayBubbles.map((bubble) => positionedMap.get(bubble.id) ?? {
     bubble,
@@ -354,130 +361,12 @@ export default function SkyView({ bubblesState, onEnterLagoon, onOpenAbout, onOp
   });
 
   const skyCanvasWidth = getSkyCanvasWidth(activeBubbles.length);
-  const shouldShowOnboarding = !onboardingDone && totalCount <= 1 && logs.length <= 1;
-  const onboardingStage: OnboardingStage = showCelebrateHint
-    ? 'celebrate'
-    : !shouldShowOnboarding
-      ? 'idle'
-      : activeBubbles.length === 0
-        ? 'create'
-        : 'complete';
 
   // 未使用変数の警告を避ける（getLogsForBubbleMonth は DailySkyView で使用）
   void getLogsForBubbleMonth;
 
-  useEffect(() => {
-    const bubbleJustAdded = prevActiveCountRef.current === 0 && activeBubbles.length === 1 && !onboardingDone;
-    if (bubbleJustAdded) {
-      const newest = activeBubbles[0];
-      if (newest) {
-        prevActiveCountRef.current = activeBubbles.length;
-        const timer = setTimeout(() => {
-          setSelectedBubbleId(newest.id);
-          setHighlightedBubbleId(newest.id);
-        }, 0);
-        return () => clearTimeout(timer);
-      }
-    }
-    prevActiveCountRef.current = activeBubbles.length;
-  }, [activeBubbles, onboardingDone]);
-
-  useEffect(() => {
-    const firstDoneLogged = prevLogCountRef.current === 0 && logs.length > 0;
-    if (firstDoneLogged) {
-      const timer = setTimeout(() => {
-        try {
-          window.localStorage.setItem(ONBOARDING_DONE_KEY, 'true');
-        } catch {
-          // ignore storage failures
-        }
-        setOnboardingDone(true);
-        try {
-          const dismissed = window.localStorage.getItem(ONBOARDING_CELEBRATE_DISMISSED_KEY) === 'true';
-          setShowCelebrateHint(!dismissed);
-        } catch {
-          setShowCelebrateHint(true);
-        }
-      }, 0);
-      prevLogCountRef.current = logs.length;
-      return () => clearTimeout(timer);
-    }
-    prevLogCountRef.current = logs.length;
-  }, [logs.length]);
-
-  const dismissCelebrateHint = () => {
-    try {
-      window.localStorage.setItem(ONBOARDING_CELEBRATE_DISMISSED_KEY, 'true');
-    } catch {
-      // ignore storage failures
-    }
-    setShowCelebrateHint(false);
-  };
-
   return (
     <div className={`sky-view sky-view--${skyPhase}`} aria-label="Pukariの空">
-      {(onboardingStage === 'create' || onboardingStage === 'complete' || onboardingStage === 'celebrate') && (
-        <section className="sky-onboarding" aria-live="polite">
-          <div className="sky-onboarding-card">
-            {onboardingStage === 'create' && (
-              <>
-                <p className="sky-onboarding-step">最初の1分</p>
-                <h2 className="sky-onboarding-title">まず1つ浮かべてみる</h2>
-                <p className="sky-onboarding-text">
-                  アイデアでも、今日やることでも大丈夫です。ひとまず1個だけ、泡にして置いてみてください。
-                </p>
-                <button
-                  type="button"
-                  className="sky-onboarding-cta"
-                  onClick={() => setInputFocusSignal((count) => count + 1)}
-                >
-                  入力してみる
-                </button>
-              </>
-            )}
-
-            {onboardingStage === 'complete' && (
-              <>
-                <p className="sky-onboarding-step">次の1分</p>
-                <h2 className="sky-onboarding-title">泡を押して「できた！」を試す</h2>
-                <p className="sky-onboarding-text">
-                  追加した泡をタップすると詳細が開きます。まず1回、完了を記録してみてください。
-                </p>
-              </>
-            )}
-
-            {onboardingStage === 'celebrate' && (
-              <>
-                <p className="sky-onboarding-step">記録できました</p>
-                <h2 className="sky-onboarding-title">今日の記録を見てみる</h2>
-                <p className="sky-onboarding-text">
-                  できたことは空に残ります。まずは「きろく」を開いて、さっきの記録を見てみてください。
-                </p>
-                <div className="sky-onboarding-actions">
-                  <button
-                    type="button"
-                    className="sky-onboarding-cta"
-                    onClick={() => {
-                      dismissCelebrateHint();
-                      setShowJournal(true);
-                    }}
-                  >
-                    きろくをみてみる
-                  </button>
-                  <button
-                    type="button"
-                    className="sky-onboarding-link"
-                    onClick={dismissCelebrateHint}
-                  >
-                    あとで見る
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </section>
-      )}
-
       {/* ヘッダー */}
       <Header onOpenAbout={onOpenAbout} onOpenGuest={onOpenGuest} onOpenPwa={onOpenPwa} onOpenPrivacy={onOpenPrivacy} onOpenTerms={onOpenTerms} onOpenWelcome={onOpenWelcome} auth={auth} onSignOut={onSignOut} />
 
@@ -530,6 +419,8 @@ export default function SkyView({ bubblesState, onEnterLagoon, onOpenAbout, onOp
                   totalCount={activeBubbles.length}
                   position={pos}
                   onTap={handleTap}
+                  onDragEnd={handleBubbleDragEnd}
+                  containerRef={skyRef}
                   exitAnimation={exiting?.exitAnimation}
                   isHighlighted={highlightedBubbleId === bubble.id}
                   isFocused={focusedBubbleId === bubble.id}
@@ -559,22 +450,10 @@ export default function SkyView({ bubblesState, onEnterLagoon, onOpenAbout, onOp
 
       {/* 入力バー（フッターの上に固定） */}
       <div className="sky-input-bar">
-        {onboardingStage === 'create' && (
-          <button
-            type="button"
-            className="sky-input-cta"
-            onClick={() => setInputFocusSignal((count) => count + 1)}
-          >
-            まず1つ浮かべてみる
-          </button>
-        )}
         <BubbleInput
           onAdd={addBubble}
           canAdd={canAdd}
           totalCount={totalCount}
-          focusSignal={inputFocusSignal}
-          placeholder={onboardingStage === 'create' ? 'まずは1つ、思いついたことを書いてみる' : undefined}
-          ctaLabel={onboardingStage === 'create' ? '浮かべる' : undefined}
         />
       </div>
 
@@ -595,7 +474,6 @@ export default function SkyView({ bubblesState, onEnterLagoon, onOpenAbout, onOp
             key={selectedBubbleId}
             bubble={selectedBubble}
             isDoneToday={isBubbleDoneToday(selectedBubble.id)}
-            showOnboardingGuide={onboardingStage === 'complete'}
             onClose={() => setSelectedBubbleId(null)}
             onFocusInLagoon={handleOpenLagoonFromBubble}
             onKeep={keepBubble}

@@ -9,9 +9,10 @@ interface LagoonBubbleItemProps {
   onClick?: () => void;
   appear?: boolean;
   delay?: number;
-  ownSize?: number;           // 参加人数別サイズ（省略時はデフォルト）
+  ownSize?: number;
   otherSize?: number;
-  canvasWidthFactor?: number; // キャンバス幅係数（1=100vw, 2=200vw …）
+  canvasWidthFactor?: number;
+  focusGlow?: number; // 0〜1: タイマー進捗（自分の泡のみ）
 }
 
 // IDから決定論的な位置とアニメーション設定を算出
@@ -57,9 +58,17 @@ export default function LagoonBubbleItem({
   ownSize = compact ? 75 : 100,
   otherSize = compact ? 55 : 80,
   canvasWidthFactor = 1,
+  focusGlow = 0,
 }: LagoonBubbleItemProps) {
   const prefersReducedMotion = useReducedMotion();
   const style = styleFromBubble(bubble.id, isOwn, ownSize, otherSize, canvasWidthFactor);
+
+  // focusGlow に応じたオーロラ重ね合わせ強度
+  const glowStyle: React.CSSProperties = focusGlow > 0 ? {
+    '--focus-glow-opacity': focusGlow,
+    '--focus-glow-scale': 1 + focusGlow * 0.12,
+  } as React.CSSProperties : {};
+
   const motionProps = appear && !prefersReducedMotion
     ? {
         initial: { scale: 0.08, opacity: 0 },
@@ -88,7 +97,10 @@ export default function LagoonBubbleItem({
         onClick?.();
       }}
     >
-      <div className={`lagoon-bubble-surface ${isOwn ? 'lagoon-bubble-surface--mine' : 'lagoon-bubble-surface--other'} ${compact ? 'lagoon-bubble-surface--compact' : ''}`}>
+      <div
+        className={`lagoon-bubble-surface ${isOwn ? 'lagoon-bubble-surface--mine' : 'lagoon-bubble-surface--other'} ${compact ? 'lagoon-bubble-surface--compact' : ''} ${focusGlow > 0 ? 'lagoon-bubble-surface--focus' : ''}`}
+        style={glowStyle}
+      >
         {bubble.message && (
           <p className="lagoon-bubble-text">{bubble.message}</p>
         )}
