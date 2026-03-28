@@ -1,0 +1,159 @@
+/* MonthlyView.css */
+
+.monthly-view-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ヘッダー */
+.monthly-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 8px 24px;
+}
+
+.monthly-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(30, 45, 70, 0.9);
+  letter-spacing: 0.05em;
+}
+
+.monthly-nav-btn {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(130, 160, 200, 0.3);
+  color: rgba(45, 68, 100, 0.8);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.monthly-nav-btn:active {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(0.95);
+}
+
+/* カレンダー */
+
+
+.monthly-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8px;
+}
+
+.monthly-weekday {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(80, 100, 130, 0.7);
+  font-weight: 500;
+  padding: 8px 0;
+}
+
+.monthly-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.monthly-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s;
+}
+
+.monthly-cell:active {
+  transform: scale(0.92);
+}
+
+.monthly-cell--empty {
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
+.monthly-cell--unclickable {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.monthly-cell--unclickable:active {
+  transform: none;
+}
+
+.monthly-cell--future {
+  opacity: 0.45;
+}
+
+/* セルの日付テキスト：空の色に邪魔されない色 */
+.monthly-cell-date {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 30, 60, 0.5);
+  z-index: 2;
+}
+
+/* データがある日の小さなぽっち */
+.monthly-cell-dot {
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 8px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+/* 記録のない日（デフォルト = dawn色） */
+.sky-cell--default-dawn {
+  background: var(--sky-dawn);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 空のグラデーションによるセル塗りつぶし */
+.sky-cell--dawn {
+  background: var(--sky-dawn);
+}
+
+.sky-cell--morning {
+  background: var(--sky-morning);
+}
+
+.sky-cell--afternoon {
+  background: var(--sky-afternoon);
+}
+
+.sky-cell--sunset {
+  background: var(--sky-sunset);
+}
+
+.sky-cell--night {
+  background: var(--sky-night);
+}

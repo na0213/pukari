@@ -9,6 +9,7 @@ interface YearlyViewProps {
   year: number;
   onRemove?: (id: string) => void;
   showHint?: boolean;
+  onSelectMonth?: (monthIndex: number) => void;
 }
 
 // 泡ごとに各月に done ログがあるかを返す（0=1月, 11=12月）
@@ -29,7 +30,7 @@ const MONTH_LABELS = [
   '7月', '8月', '9月', '10月', '11月', '12月',
 ];
 
-export default function YearlyView({ bubbles, logs, year, onRemove, showHint = false }: YearlyViewProps) {
+export default function YearlyView({ bubbles, logs, year, onRemove, showHint = false, onSelectMonth }: YearlyViewProps) {
   const currentMonth = new Date().getMonth(); // 0-indexed
   const [selectedBubbleId, setSelectedBubbleId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -95,7 +96,17 @@ export default function YearlyView({ bubbles, logs, year, onRemove, showHint = f
               <th className="ym-th ym-th-name" />
               {MONTH_LABELS.map((label, i) => (
                 <th key={i} className={`ym-th ym-th-month${i === currentMonth ? ' ym-th-month--current' : ''}`}>
-                  {label}
+                  {onSelectMonth ? (
+                    <button
+                      type="button"
+                      className="ym-month-btn"
+                      onClick={() => onSelectMonth(i)}
+                    >
+                      {label}
+                    </button>
+                  ) : (
+                    label
+                  )}
                 </th>
               ))}
             </tr>

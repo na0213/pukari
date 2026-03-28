@@ -5,6 +5,7 @@ import { useDailySky } from '../../hooks/useDailySky';
 import type { DailySkyDetail } from '../../hooks/useDailySky';
 import { getBubbleColorStyle } from '../../lib/bubbleColors';
 import YearlyView from './YearlyView';
+import MonthlyView from './MonthlyView';
 import './DailySkyView.css';
 
 // ── 日付フォーマット: 「3月24日（月）」──
@@ -341,7 +342,7 @@ interface DailySkyViewProps {
   onRemove?: (id: string) => void;
 }
 
-type TabType = 'today' | 'year';
+type TabType = 'today' | 'month' | 'year';
 
 export default function DailySkyView({ bubbles, logs, onClose, onRemove }: DailySkyViewProps) {
   const { allDays } = useDailySky(bubbles, logs);
@@ -350,6 +351,23 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
   const [dayIndex, setDayIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [showYearHint, setShowYearHint] = useState(false);
+  const [initialMonthDate, setInitialMonthDate] = useState<Date | undefined>(undefined);
+
+  const handleDateSelect = (dateStr: string) => {
+    const targetIdx = allDays.findIndex((d) => d.date === dateStr);
+    if (targetIdx !== -1) {
+      setDirection(targetIdx > dayIndex ? 1 : -1);
+      setDayIndex(targetIdx);
+      setActiveTab('today');
+    }
+  };
+
+  const handleMonthSelect = (monthIndex: number) => {
+    const d = new Date();
+    d.setMonth(monthIndex);
+    setInitialMonthDate(d);
+    setActiveTab('month');
+  };
 
   const currentYear = new Date().getFullYear();
   useEffect(() => {
@@ -419,6 +437,8 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
       aria-label={
         activeTab === 'today'
           ? '今日の空'
+          : activeTab === 'month'
+          ? '今月の空'
           : '今年できたこと'
       }
     >
@@ -437,6 +457,12 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
             onClick={() => setActiveTab('today')}
           >
             今日の空
+          </button>
+          <button
+            className={`daily-sky-tab ${activeTab === 'month' ? 'daily-sky-tab--active' : ''}`}
+            onClick={() => setActiveTab('month')}
+          >
+            今月の空
           </button>
           <button
             className={`daily-sky-tab ${activeTab === 'year' ? 'daily-sky-tab--active' : ''}`}
@@ -474,6 +500,15 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
           </motion.div>
         )}
 
+        {/* 月ごとタブ */}
+        {activeTab === 'month' && (
+          <MonthlyView
+            allDays={allDays}
+            initialDate={initialMonthDate}
+            onDateSelect={handleDateSelect}
+          />
+        )}
+
         {/* 今年できたことタブ */}
         {activeTab === 'year' && (
           <YearlyView
@@ -482,6 +517,7 @@ export default function DailySkyView({ bubbles, logs, onClose, onRemove }: Daily
             year={currentYear}
             onRemove={onRemove}
             showHint={showYearHint}
+            onSelectMonth={handleMonthSelect}
           />
         )}
       </div>

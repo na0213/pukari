@@ -98,6 +98,27 @@
   position: relative;
 }
 
+/* 月を選択するボタン */
+.ym-month-btn {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: background 0.15s, transform 0.1s;
+  display: inline-block;
+  line-height: 1;
+}
+
+.ym-month-btn:active {
+  background: rgba(100, 160, 220, 0.15);
+  transform: scale(0.95);
+}
+
 /* ── 行 ── */
 .ym-row:not(:last-child) .ym-td {
   border-bottom: 1px solid rgba(100, 160, 220, 0.06);

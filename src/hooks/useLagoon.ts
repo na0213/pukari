@@ -18,7 +18,7 @@ const LOOP_SCHEDULER_INTERVAL_MS = 100;
 const audioBufferCache = new Map<string, Promise<AudioBuffer>>();
 let sharedAudioContext: AudioContext | null = null;
 const LAGOON_VOLUME_KEY = 'pukari-lagoon-volume';
-
+const LAGOON_WAKELOCK_KEY = 'pukari-lagoon-wakelock';
 type LoopOptions = {
   loopTrimStartSeconds?: number;
   loopTrimEndSeconds?: number;
@@ -231,6 +231,8 @@ export interface UseLagoonReturn {
   setSound: (sound: LagoonSound) => void;
   volume: number;
   setVolume: (volume: number) => void;
+  isWakeLockEnabled: boolean;
+  setIsWakeLockEnabled: (enabled: boolean) => void;
 }
 
 export function useLagoon(): UseLagoonReturn {
@@ -246,6 +248,10 @@ export function useLagoon(): UseLagoonReturn {
     const raw = window.localStorage.getItem(LAGOON_VOLUME_KEY);
     const parsed = raw === null ? 0.4 : Number(raw);
     return Number.isFinite(parsed) ? Math.min(1, Math.max(0, parsed)) : 0.4;
+  });
+  const [isWakeLockEnabled, setIsWakeLockEnabledState] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(LAGOON_WAKELOCK_KEY) === 'true';
   });
 
   // BGM 用ループインスタンス
@@ -270,6 +276,11 @@ export function useLagoon(): UseLagoonReturn {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem(LAGOON_VOLUME_KEY, String(volume));
   }, [volume]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(LAGOON_WAKELOCK_KEY, String(isWakeLockEnabled));
+  }, [isWakeLockEnabled]);
 
   // ── Supabase Realtime サブスクリプション（入室中のみ） ──
   useEffect(() => {
@@ -450,6 +461,10 @@ export function useLagoon(): UseLagoonReturn {
     }
   }, []);
 
+  const setIsWakeLockEnabled = useCallback((enabled: boolean) => {
+    setIsWakeLockEnabledState(enabled);
+  }, []);
+
   return {
     isInLagoon,
     enterLagoon,
@@ -464,5 +479,7 @@ export function useLagoon(): UseLagoonReturn {
     setSound,
     volume,
     setVolume,
+    isWakeLockEnabled,
+    setIsWakeLockEnabled,
   };
 }

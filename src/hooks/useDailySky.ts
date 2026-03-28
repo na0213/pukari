@@ -53,7 +53,8 @@ export function useDailySky(
   const bubbleMap = new Map(bubbles.map((b) => [b.id, b]));
 
   const todayJST = getTodayJSTDate();
-  const dayStrings = Array.from({ length: 7 }, (_, i) => {
+  // 過去1年分（366日）のデータを生成
+  const dayStrings = Array.from({ length: 366 }, (_, i) => {
     const d = new Date(todayJST);
     d.setUTCDate(d.getUTCDate() - i);
     return toJSTDate(d);

@@ -7,8 +7,10 @@ const SOUND_ORDER: LagoonSound[] = ['none', 'rain', 'wave', 'bonfire'];
 interface SoundPickerProps {
   current: LagoonSound;
   volume: number;
+  isWakeLockEnabled: boolean;
   onChange: (sound: LagoonSound) => void;
   onVolumeChange: (volume: number) => void;
+  onWakeLockChange: (enabled: boolean) => void;
   onClose: () => void;
 }
 
@@ -32,7 +34,7 @@ function MusicIcon() {
   );
 }
 
-export default function SoundPicker({ current, volume, onChange, onVolumeChange, onClose }: SoundPickerProps) {
+export default function SoundPicker({ current, volume, isWakeLockEnabled, onChange, onVolumeChange, onWakeLockChange, onClose }: SoundPickerProps) {
   return (
     <>
       <div className="picker-overlay" aria-hidden="true" />
@@ -86,7 +88,27 @@ export default function SoundPicker({ current, volume, onChange, onVolumeChange,
             onChange={(e) => onVolumeChange(Number(e.currentTarget.value))}
             aria-label="サウンド音量"
           />
-          <p className="picker-volume-note">スマホでは、本体の音量をオンにすると再生されます。</p>
+          <p className="picker-volume-note">スマホでは、本体のマナーモードを解除すると音が流れます</p>
+        </div>
+
+        <div className="picker-wakelock">
+          <div className="picker-wakelock-label">
+            <span>画面を常時点灯する</span>
+            <p className="picker-wakelock-note">
+              サウンド再生中のみ有効です。<br />
+              <span className="picker-wakelock-warning">※バッテリー消費に注意</span>
+            </p>
+          </div>
+          <label className="picker-toggle">
+            <input
+              type="checkbox"
+              className="picker-toggle-input"
+              checked={isWakeLockEnabled}
+              onChange={(e) => onWakeLockChange(e.currentTarget.checked)}
+              aria-label="画面を常時点灯する"
+            />
+            <span className="picker-toggle-slider" />
+          </label>
         </div>
       </div>
     </>

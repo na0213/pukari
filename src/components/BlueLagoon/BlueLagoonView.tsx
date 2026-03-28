@@ -3,6 +3,7 @@ import { AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { UseLagoonReturn } from '../../hooks/useLagoon';
 import type { LagoonBubble } from '../../types/bluelagoon';
 import { LAGOON_SOUND_CONFIG } from '../../lib/constants';
+import { useWakeLock } from '../../hooks/useWakeLock';
 import LagoonBubbleItem from './LagoonBubbleItem';
 import SoundPicker from './SoundPicker';
 import LagoonTimer, { TimerIcon } from './LagoonTimer';
@@ -57,7 +58,10 @@ export default function BlueLagoonView({ lagoon, onMarkBubbleDone, onMarkBubbleD
     myBubble, otherBubbles, participantCount,
     sound, entryBubbleId, entryBubbleText,
     setSound, volume, setVolume, exitLagoon,
+    isWakeLockEnabled, setIsWakeLockEnabled,
   } = lagoon;
+
+  useWakeLock(sound !== 'none' && isWakeLockEnabled);
 
   const [showSoundPicker, setShowSoundPicker] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
@@ -272,10 +276,12 @@ export default function BlueLagoonView({ lagoon, onMarkBubbleDone, onMarkBubbleD
         <SoundPicker
           current={sound}
           volume={volume}
+          isWakeLockEnabled={isWakeLockEnabled}
           onChange={(s) => {
             setSound(s);
           }}
           onVolumeChange={setVolume}
+          onWakeLockChange={setIsWakeLockEnabled}
           onClose={() => setShowSoundPicker(false)}
         />
       )}
